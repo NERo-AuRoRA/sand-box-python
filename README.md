@@ -19,4 +19,23 @@ Furthermore, some other dependencies need to be installed manually:
 - [Kinect for Windows SDK v1.8](https://www.microsoft.com/en-us/download/details.aspx?id=40278)
 - [OpenNI 2 SDK](https://structure.io/openni)  
 
-> When you finish the installation of OpenNI, you must copy the directory *Redist* from *OpenNI2* to *sand-box-python* directory.  
+> When you finish the installation of OpenNI, you must copy the directory *Redist* from *OpenNI2* to *sand-box-python* directory.
+
+To contribute with this project, you should follow these steps in the terminal of your local repository:
+
+Verify what is your current branch:  
+`C:\Users\User\sand-box-python> git status`
+
+If your current branch is not *main*:  
+`C:\Users\User\sand-box-python> git checkout main`
+
+Now, in branch main, execute:  
+`C:\Users\User\sand-box-python> git checkout -b your-branch-name`
+
+When you finish a step from your job, execute:  
+`C:\Users\User\sand-box-python> git add .`  
+`C:\Users\User\sand-box-python> git commit -m "A message that explains what you did`
+
+When you finish a set of steps that was commited, execute:  
+`C:\Users\User\sand-box-python> git push origin your-branch-name`
+
