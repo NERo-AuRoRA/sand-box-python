@@ -75,13 +75,19 @@ def exib_3D():
     ax.zaxis.set_major_formatter('{x:.02f}')
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
+    
 
-#==========================================================================================
-    #Definindo função para vizualização das curvas de nível em tempor real COM MAPA DE CORES
-#==========================================================================================   
-def exib_TR():
+def exib_TR(depth_stream, mapoption = cv2.COLORMAP_JET, walloption=2, curv = True, n=5, thicknesscurv= 2):
+    
+    def onMouse(event, x, y, flags, param):
+        global dist   
+        if event == cv2.EVENT_MOUSEMOVE:
+            dist = (val1/val2)*imgray[y, x]
+            
+    cv2.namedWindow("Curvas em tempo real com mapa de cores")
+    cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
     while(True):
-        sleep(0.05)
+        
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
         img = np.frombuffer(frame_data, dtype=np.uint16)
@@ -91,88 +97,34 @@ def exib_TR():
         img = np.swapaxes(img, 0, 2)
         img = np.swapaxes(img, 0, 1)
         img = img[10:480, 80:]
-   
+
+        val1 = np.amax(img)
+
         img = cv2.convertScaleAbs(img, alpha=0.1) # alterando valor de alpha, altera-se o gradiente
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) #APLIC-SE GRADIENTE
-        im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
+        img = cv2.rotate(img, cv2.ROTATE_180) 
+        im_color = cv2.applyColorMap(img, mapoption) #APLIC-SE GRADIENTE
 
-        # FILTROS      
-        imgray = cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY)
-        imgray = cv2.medianBlur(img, 43)#melhor
-        #imgray = cv2.bilateralFilter(img, 39, 273, 273)
+        im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)    
+        imgray = cv2.medianBlur(cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY), 43)
 
-        for i in range(50):     
-            ret, thresh = cv2.threshold (imgray, (5*i), 255, cv2.THRESH_BINARY)
-            contours, his  = cv2.findContours (thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            cv2.drawContours(im_color, contours, -1, (0,0,0), 2)
-
-        im_color = cv2.rotate(im_color, cv2.ROTATE_180) # rotacionar imagem
-        cv2.imshow("Curvas em tempo real com mapa de cores", (im_color))
+        val2 = np.amax(imgray)
+        
+        whitewall = (np.ones(im_color.shape))*255
+        if walloption == 1: wall = whitewall
+        elif walloption == 2: wall = im_color
+        if curv == True:
+            for i in range(255):     
+                ret, thresh = cv2.threshold (imgray, (n*i), 255, cv2.THRESH_BINARY)
+                contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)
+        if type(dist) == np.float32:
+            cv2.putText(wall,str(int(dist)),(10,450),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
+        
+        cv2.imshow("Curvas em tempo real com mapa de cores", (wall))          
         cv2.waitKey(34)
         if cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1:
             break
 
-
-
-def exib_TRB():
-    while(True):
-        sleep(0.05)
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-
-        img.shape = (1, 480, 640)
-        img = np.fliplr(img)    
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)
-        img = img[10:480, 80:]
-    
-        img = cv2.convertScaleAbs(img, alpha=0.1) # alterando valor de alpha, altera-se o gradiente
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) #APLICA-SE GRADIENTE
-        im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
-
-        # FILTROS      
-        imgray = cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY)
-        imgray = cv2.medianBlur(img, 43)#melhor
-        #imgray = cv2.bilateralFilter(img, 39, 273, 273)
-
-        tu = (np.ones(im_color.shape))*255
-        for i in range(45):     
-            ret, thresh = cv2.threshold (imgray, (5*i), 255, cv2.THRESH_BINARY)
-            contours, his  = cv2.findContours (thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            cv2.drawContours(tu, contours, -1, (0,0,0), 2)
-
-        tu = cv2.rotate(tu, cv2.ROTATE_180) # rotacionar imagem
-        cv2.imshow("Curvas em tempo real", (tu))
-        cv2.waitKey(34)
-        if cv2.getWindowProperty("Curvas em tempo real", cv2.WND_PROP_VISIBLE) <1:
-            break
-
-#==========================================================================================
-    #Definindo função para vizualização do MAPA DE CORES
-#==========================================================================================
-
-def exib_MAP():
-    while(True):
-        sleep(0.05)
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-
-        img.shape = (1, 480, 640)
-        img = np.fliplr(img)    
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)
-        img = img[10:480, 80:]
-       
-        img = cv2.convertScaleAbs(img, alpha=0.1) # alterando valor de alpha, altera-se o gradiente
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) #APLIC-SE GRADIENTE
-
-        im_color = cv2.rotate(im_color, cv2.ROTATE_180) # rotacionar imagem
-        cv2.imshow("Mapa de cores em tempo real", (im_color))
-        cv2.waitKey(34)
-        if cv2.getWindowProperty("Mapa de cores em tempo real", cv2.WND_PROP_VISIBLE) <1:
-            break
 
 #==========================================================================================
     #adicionando thread
