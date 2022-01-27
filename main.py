@@ -112,9 +112,7 @@ def exib_TR():
         if cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1:
             break
 
-#==========================================================================================
-    #Definindo função para vizualização em tempo real SEM MAPA DE CORES
-#==========================================================================================
+
 
 def exib_TRB():
     while(True):
