@@ -10,18 +10,21 @@ import matplotlib.animation as animation
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 import numpy as np
-from time import sleep
 
 import threading
 
 #==========================================================================================
     #Inicializando kinect
 #==========================================================================================
+
+dist = 0
+
 def initialize():
     openni2.initialize()
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
+
 
 #==========================================================================================
     #Definindo função para vizualização das curvas de nível
@@ -82,13 +85,21 @@ def exibe_3d(depth_stream, x_label=np.arange(80, 640, 1), y_label=np.arange(10, 
     ax.zaxis.set_major_formatter('{x:.02f}')
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
+    
 
-#==========================================================================================
-    #Definindo função para vizualização das curvas de nível em tempor real COM MAPA DE CORES
-#==========================================================================================   
-def exib_TR():
+
+def exib_TR(depth_stream, mapoption = cv2.COLORMAP_JET, walloption=2, curv = True, n=5, thicknesscurv= 2, siz = [0,0]):
+    
+    def onMouse(event, x, y, flags, param):
+        global dist   
+        if event == cv2.EVENT_MOUSEMOVE:
+            dist = (val1/val2)*imgray[y, x]
+
+     
+    cv2.namedWindow("Curvas em tempo real com mapa de cores", cv2.WINDOW_AUTOSIZE)
+    cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
     while(True):
-        sleep(0.05)
+        
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
         img = np.frombuffer(frame_data, dtype=np.uint16)
@@ -98,105 +109,48 @@ def exib_TR():
         img = np.swapaxes(img, 0, 2)
         img = np.swapaxes(img, 0, 1)
         img = img[10:480, 80:]
-   
-        img = cv2.convertScaleAbs(img, alpha=0.1) # alterando valor de alpha, altera-se o gradiente
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) #APLIC-SE GRADIENTE
+
+        val1 = np.amax(img)
+
+        img = cv2.convertScaleAbs(img, alpha=0.1) 
+        img = cv2.rotate(img, cv2.ROTATE_180) 
+        
+        im_color = cv2.applyColorMap(img, mapoption) 
         im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
+        
+        if (siz[0] != 0) & (siz[1] != 0):
+            im_color = cv2.resize(im_color, siz, interpolation=cv2.INTER_LINEAR)
+            im_color1 = cv2.resize(im_color1, siz, interpolation=cv2.INTER_LINEAR)    
+        
+        imgray = cv2.medianBlur(cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY), 43)
 
-        # FILTROS      
-        imgray = cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY)
-        imgray = cv2.medianBlur(img, 43)#melhor
-        #imgray = cv2.bilateralFilter(img, 39, 273, 273)
-
-        for i in range(50):     
-            ret, thresh = cv2.threshold (imgray, (5*i), 255, cv2.THRESH_BINARY)
-            contours, his  = cv2.findContours (thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            cv2.drawContours(im_color, contours, -1, (0,0,0), 2)
-
-        im_color = cv2.rotate(im_color, cv2.ROTATE_180) # rotacionar imagem
-        cv2.imshow("Curvas em tempo real com mapa de cores", (im_color))
+        val2 = np.amax(imgray)
+        
+        whitewall = (np.ones(im_color.shape))*255
+        if walloption == 1: wall = whitewall
+        elif walloption == 2: wall = im_color
+        if curv == True:
+            for i in range(255):     
+                ret, thresh = cv2.threshold (imgray, (n*i), 255, cv2.THRESH_BINARY)
+                contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)
+        if type(dist) == np.float32:
+            cv2.putText(wall,str(int(dist)),(10,((np.size(wall,0))-30)),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
+            
+        cv2.imshow("Curvas em tempo real com mapa de cores", (wall))    
+          
         cv2.waitKey(34)
+      
         if cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1:
             break
 
-#==========================================================================================
-    #Definindo função para vizualização em tempo real SEM MAPA DE CORES
-#==========================================================================================
-
-def exib_TRB():
-    while(True):
-        sleep(0.05)
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-
-        img.shape = (1, 480, 640)
-        img = np.fliplr(img)    
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)
-        img = img[10:480, 80:]
-    
-        img = cv2.convertScaleAbs(img, alpha=0.1) # alterando valor de alpha, altera-se o gradiente
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) #APLICA-SE GRADIENTE
-        im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
-
-        # FILTROS      
-        imgray = cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY)
-        imgray = cv2.medianBlur(img, 43)#melhor
-        #imgray = cv2.bilateralFilter(img, 39, 273, 273)
-
-        tu = (np.ones(im_color.shape))*255
-        for i in range(45):     
-            ret, thresh = cv2.threshold (imgray, (5*i), 255, cv2.THRESH_BINARY)
-            contours, his  = cv2.findContours (thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-            cv2.drawContours(tu, contours, -1, (0,0,0), 2)
-
-        tu = cv2.rotate(tu, cv2.ROTATE_180) # rotacionar imagem
-        cv2.imshow("Curvas em tempo real", (tu))
-        cv2.waitKey(34)
-        if cv2.getWindowProperty("Curvas em tempo real", cv2.WND_PROP_VISIBLE) <1:
-            break
-
-#==========================================================================================
-    #Definindo função para vizualização do MAPA DE CORES
-#==========================================================================================
-
-def exib_MAP():
-    while(True):
-        sleep(0.05)
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-
-        img.shape = (1, 480, 640)
-        img = np.fliplr(img)    
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)
-        img = img[10:480, 80:]
-       
-        img = cv2.convertScaleAbs(img, alpha=0.1) # alterando valor de alpha, altera-se o gradiente
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) #APLIC-SE GRADIENTE
-
-        im_color = cv2.rotate(im_color, cv2.ROTATE_180) # rotacionar imagem
-        cv2.imshow("Mapa de cores em tempo real", (im_color))
-        cv2.waitKey(34)
-        if cv2.getWindowProperty("Mapa de cores em tempo real", cv2.WND_PROP_VISIBLE) <1:
-            break
 
 #==========================================================================================
     #adicionando thread
 #==========================================================================================
 
 def m1():
-    x = threading.Thread(target=exib_TR)
-    x.start()
-
-def m2():
-    x = threading.Thread(target=exib_TRB)
-    x.start()
-
-def m3():
-    x = threading.Thread(target=exib_MAP)
+    x = threading.Thread(target=exib_TR(depth_stream,cv2.COLORMAP_JET,2,True,5, 2, [0,0]))
     x.start()
 
 def m4():
@@ -222,11 +176,6 @@ c = 10
 botao1 = Button(janela, text="Exibir curvas em tempo real com mapa", command= m1 )
 botao1.place(height=20, width=220, x=a, y=(c + 2*b))
 
-botao2 = Button(janela, text="Exibir curvas em tempo real sem mapa", command= m2)
-botao2.place(height=20, width=220,x=a, y=(c + 3*b))
-
-botao3 = Button(janela, text="Exibir mapa em tempo real", command= m3)
-botao3.place(height=20, width=160,x=a, y=(c + 4*b))
 
 texto = Label(janela, text="Escolha modo de exibição do frame capturado:")
 texto.place(height=20, width=250, x=a, y=(c + 5*b))
