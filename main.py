@@ -16,38 +16,41 @@ import threading
 #==========================================================================================
     #Inicializando kinect
 #==========================================================================================
+
 dist = 0
-openni2.initialize()
-dev = openni2.Device.open_any()
-depth_stream = dev.create_depth_stream()
-depth_stream.start()
+
+def initialize():
+    openni2.initialize()
+    dev = openni2.Device.open_any()
+    depth_stream = dev.create_depth_stream()
+    depth_stream.start()
+
 
 #==========================================================================================
     #Definindo função para vizualização das curvas de nível
 #==========================================================================================
-    
-def exib_CURV():
-    n1 = 40 #numero de curvas de niveis
 
-    X = np.arange(0, 640, 1)
-    Y = np.arange(0, 480, 1)
-    X = X[80:]
-    Y = Y[10:480]
-    X, Y = np.meshgrid(X, Y)
-
-
+def exibe_curvas_de_nivel(depth_stream, n_curvas_de_nivel=40, x_label=np.arange(80, 640, 1),
+                          y_label=np.arange(10, 480, 1)):
+    """
+    Função para definir a exibição das curvas de nível na imagem.
+    :param depth_stream:
+    :param n_curvas_de_nivel:
+    :param x_label:
+    :param y_label:
+    :return:
+    """
+    x_label, y_label = np.meshgrid(x_label, y_label)
     frame = depth_stream.read_frame()
     frame_data = frame.get_buffer_as_uint16()
 
     img = np.frombuffer(frame_data, dtype=np.uint16)
-    
-    
-    Z = np.reshape(img, (480, 640))
-    Z = Z[10:480, 80:]
-    Z = np.rot90(Z, 2) # rotacionar matriz
-    
+
+    z_label = np.reshape(img, (480, 640))[10:480, 80:]
+    z_label = np.rot90(z_label, 2)
+
     fig, ax = plt.subplots()
-    CS = ax.contour(X, Y, Z, n1) 
+    CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel)
     ax.clabel(CS, fontsize=9, inline=True)
     ax.set_title('Curva de nível')
     plt.show()
@@ -55,22 +58,30 @@ def exib_CURV():
     #Definindo função para vizualização em 3D
 #==========================================================================================
 
-def exib_3D():
-    X = np.arange(0, 640, 1)
-    Y = np.arange(0, 480, 1)
-    X = X[80:]
-    Y = Y[10:480]
-    X, Y = np.meshgrid(X, Y)
+def exibe_3d(depth_stream, x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1), cmap=cm.coolwarm, linewidth=0,
+             antialised=True):
+    """
+    Função para fazer a exibição da imagem em três dimensões
+    :param depth_stream:
+    :param x_label:
+    :param y_label:
+    :param cmap:
+    :param linewidth:
+    :param antialised:
+    :return:
+    """
+    x_label, y_label = np.meshgrid(x_label, y_label)
 
     frame = depth_stream.read_frame()
     frame_data = frame.get_buffer_as_uint16()
+
     img = np.frombuffer(frame_data, dtype=np.uint16)
-    Z = np.reshape(img, (480, 640))
-    Z = Z[10:480, 80:]
-    Z = np.fliplr(Z) # rotacionar matriz
+
+    z_label = np.reshape(img, (480, 640))[10:480, 80:]
+    z_label = np.fliplr(z_label)
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=True)                    
+    surf = ax.plot_surface(x_label, y_label, z_label, cmap=cmap, linewidth=linewidth, antialiased=antialised)
     ax.zaxis.set_major_formatter('{x:.02f}')
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
