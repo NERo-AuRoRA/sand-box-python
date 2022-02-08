@@ -19,11 +19,11 @@ import threading
 
 dist = 0
 
-def initialize():
-    openni2.initialize()
-    dev = openni2.Device.open_any()
-    depth_stream = dev.create_depth_stream()
-    depth_stream.start()
+
+openni2.initialize()
+dev = openni2.Device.open_any()
+depth_stream = dev.create_depth_stream()
+depth_stream.start()
 
 
 #==========================================================================================
@@ -154,11 +154,13 @@ def m1():
     x.start()
 
 def m4():
-    x = threading.Thread(target= exib_CURV)
+    x = threading.Thread(target= exibe_curvas_de_nivel(depth_stream, n_curvas_de_nivel=40,
+                         x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1)))
     x.start()
 
 def m5():
-    x = threading.Thread(target=exib_3D)
+    x = threading.Thread(target=exibe_3d(depth_stream, x_label=np.arange(80, 640, 1),
+                      y_label=np.arange(10, 480, 1), cmap=cm.coolwarm, linewidth=0, antialised=True))
     x.start()
 #==========================================================================================
     #Criando interface gráfica
