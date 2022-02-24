@@ -157,23 +157,7 @@ def exib_TR(depth_stream, mapoption = cv2.COLORMAP_JET, walloption=1, curv = 1, 
       
         if cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1:
             break
-def search(s, lista):
-    i = 0
-    a = i
-    while i < len( lista):
-        if s == lista[i]:
-            a = i
-        i = i + 1
-    return a
 
-def resol(i):
-    if i == 0:
-        a = [640,480]
-    elif i == 1:
-        a = [720,640]
-    elif i == 2:
-        a = [1280,720]
-    return a        
 
 #==========================================================================================
     #adicionando thread
@@ -201,9 +185,7 @@ def m5():
 #==========================================================================================
     #Criando interface gráfica
 #==========================================================================================
-def switch(a,b,c,d,e,f):
-    if (type(a) != int) & (type(b) != int) & (type(c) != int) & (type(d) != int) & (type(e) != int) & (type(f) != int):
-        botao1["state"] = "disabled"
+
 
 janela = tk.Tk()
 janela.geometry("700x300")
@@ -213,8 +195,8 @@ a = 10
 b = 30
 c = 10
 
-
-
+botao1 = ttk.Button(janela, text="Exibir", command= m1 )
+botao1.place(height=20, width=50, x=a, y=(c + 4*b))
 
 texto = ttk.Label(janela, text="Escolha modo de exibição do frame capturado:")
 texto.place(height=20, width=250, x=a, y=(c + 5*b))
@@ -285,8 +267,6 @@ siz.set('Resolução')
 siz['state'] = 'readonly'
 siz.place(height=20, width=100, x=59*a, y=(c + 3*b))
 
-botao1 = ttk.Button(janela, text="Exibir", command= m1 )
-botao1.place(height=20, width=50, x=a, y=(c + 4*b))
 
 
 janela.mainloop()
