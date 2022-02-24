@@ -267,6 +267,4 @@ siz.set('Resolução')
 siz['state'] = 'readonly'
 siz.place(height=20, width=100, x=59*a, y=(c + 3*b))
 
-
-
 janela.mainloop()
