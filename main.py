@@ -169,23 +169,23 @@ def exibe_3d(x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1), cmap=
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
 
-list_var = [cv2.COLORMAP_JET, 1, 1, 5, 2, 10]
+list_var = [cv2.COLORMAP_JET, 1, 1, 5, 2, 10, False]
 
 def maplic():
     global list_var
-    if ((thickness_curv.current() != -1) & (siz.current() != -1 )
-                                     & (numbers_curv.current() != -1)
-                                     & (gradi.current() != -1)):
+    if ((thickness_curv.current() != -1) and (siz.current() != -1 )
+                                     and (numbers_curv.current() != -1)
+                                     and (gradi.current() != -1)):
                                      list_var = [gradi.current(),var1.get(),var2.get(),
-                                     var3.get(),var4.get(), siz.current()]
+                                     var3.get(),var4.get(), siz.current(), True]
                                      botao1["state"] = tk.NORMAL
-
     else:
         tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
 
 
 def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2], n=list_var[3], 
-                                                            thicknesscurv= list_var[4], siz = list_var[5]):
+                                                            thicknesscurv= list_var[4], siz = list_var[5], exit_1= list_var[6]):
+                                                            
     botao1["state"] = tk.DISABLED
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -209,7 +209,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
     cv2.namedWindow("Curvas em tempo real com mapa de cores", cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
     while(True):
-        
+        print("entrei")
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
         img = np.frombuffer(frame_data, dtype=np.uint16)
@@ -251,28 +251,24 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         cv2.imshow("Curvas em tempo real com mapa de cores", (wall))    
           
         cv2.waitKey(34)
-      
-        if cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1:
-            botao1["state"] = tk.NORMAL
-            break
 
+        if (cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1) or (list_var[6] == True):
+    
+            botao1["state"] = tk.NORMAL
+            list_var[6] = False   
+            break
+    cv2.destroyAllWindows()    
+
+def fal():
+    list_var[6] = False
+    
 
 #==========================================================================================
     #adicionando thread
 #==========================================================================================
 
-def m1():
-    if ((thickness_curv.current() != -1) & (siz.current() != -1 )
-                                     & (numbers_curv.current() != -1)
-                                     & (gradi.current() != -1)):
-                                     x = threading.Thread(target=exib_TR(depth_stream, 
-                                       gradi.current(),var1.get(),var2.get(),var3.get(),var4.get(), siz.current()))
-                                     x.start
-    else:
-        tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
-
-botao1 = ttk.Button(janela, text="Exibir", command= lambda:threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
-                                       list_var[2],list_var[3],list_var[4], list_var[5])).start())                                
+botao1 = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
+                                       list_var[2],list_var[3],list_var[4], list_var[5], list_var[6])).start()])                             
 botao1.place(height=20, width=50, x=a, y=(c + 4*b))
 
 botao2 = ttk.Button(janela, text="Exibir curvas", command= lambda: threading.Thread(target= exibe_curvas_de_nivel).start())
