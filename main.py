@@ -33,6 +33,9 @@ texto.place(height=20, width=250, x=a, y=(c + 5*b))
 texto2 = ttk.Label(janela, text="Defina os parâmetros para exibição em tempo real:")
 texto2.place(height=20, width=300, x=a, y=(c + 2*b))
 
+texto3 = ttk.Label(janela, text="Parâmetros alterados, pressione exibir.")
+
+
 
 var1 = tk.IntVar()
 check2 = ttk.Checkbutton(janela, text='Cores', variable= var1)
@@ -169,16 +172,17 @@ def exibe_3d(x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1), cmap=
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
 
-list_var = [cv2.COLORMAP_JET, 1, 1, 5, 2, 10, False]
+list_var = [2, 1, 1, 5, 2, 10, False]
 
 def maplic():
     global list_var
     if ((thickness_curv.current() != -1) and (siz.current() != -1 )
-                                     and (numbers_curv.current() != -1)
-                                     and (gradi.current() != -1)):
+                                     and (numbers_curv.current() != -1) and (gradi.current() != -1)):
                                      list_var = [gradi.current(),var1.get(),var2.get(),
                                      var3.get(),var4.get(), siz.current(), True]
                                      botao1["state"] = tk.NORMAL
+                                     texto3.place(height=20, width=300, x=20*a, y=(c + 4*b))
+
     else:
         tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
 
@@ -260,8 +264,10 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
     cv2.destroyAllWindows()    
 
 def fal():
+    texto3.place_forget()
     list_var[6] = False
-    
+    if list_var == [2, 1, 1, 5, 2, 10, False]:
+        tk.messagebox.showinfo("Info", "parâmetros padrão utilizados")
 
 #==========================================================================================
     #adicionando thread
@@ -277,7 +283,7 @@ botao2.place(height=20, width=80,x=a, y=(c + 6*b))
 botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: threading.Thread(target=exibe_3d).start())
 botao3.place(height=20, width=100, x=a, y=(c + 7*b))
 
-botao4 = ttk.Button(janela, text="Aplicar", command= maplic)                                 
-botao4.place(height=20, width=50, x=10*a, y=(c + 4*b))
+botao4 = ttk.Button(janela, text="Aplicar", command= lambda: maplic())                                 
+botao4.place(height=20, width=50, x=6*a, y=(c + 4*b))
 
 janela.mainloop()
