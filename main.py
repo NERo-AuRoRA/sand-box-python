@@ -213,7 +213,6 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
     cv2.namedWindow("Curvas em tempo real com mapa de cores", cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
     while(True):
-        print("entrei")
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
         img = np.frombuffer(frame_data, dtype=np.uint16)
@@ -249,9 +248,11 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
                 ret, thresh = cv2.threshold (imgray, (n*i), 255, cv2.THRESH_BINARY)
                 contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
                 cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)
-        if type(dist) == np.float32:
-            cv2.putText(wall,str(int(dist)),(10,((np.size(wall,0))-30)),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
-            
+        if (type(dist) == np.float32) and (np.isnan(dist)):
+            cv2.putText(wall,str(int(np.nan_to_num(dist))),(10,((np.size(wall,0))-30)),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
+        elif (type(dist) == np.float32):
+             cv2.putText(wall,str(int(dist)),(10,((np.size(wall,0))-30)),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
+
         cv2.imshow("Curvas em tempo real com mapa de cores", (wall))    
           
         cv2.waitKey(34)
