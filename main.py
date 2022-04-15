@@ -210,7 +210,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         #val1 = np.amax(img)
         img = cv2.convertScaleAbs((img), alpha=0.1) 
 
-        img = cv2.medianBlur(img, 21)
+        img = cv2.medianBlur(img, 23)
         img = equalizeHist(img)
         img = cv2.rotate(img, cv2.ROTATE_180) 
         
@@ -321,6 +321,10 @@ def cal_inicial():
                 pts = []
                 break
             else:
+                botao4["state"] = tk.NORMAL
+                botao1["state"] = tk.NORMAL
+                botao2["state"] = tk.NORMAL
+                botao3["state"] = tk.NORMAL
                 break
     cv2.destroyAllWindows()
 
@@ -329,6 +333,7 @@ def cal_inicial():
 
 botao_c = ttk.Button(janela, text="Calibrar", command= lambda: threading.Thread(target=cal_inicial()).start())                                 
 botao_c.place(height=25, width=100, x=15*a, y=(15 + 0*b))
+
 texto_c = ttk.Label(janela, text="Selecione a área da caixa:")
 texto_c.place(height=25, width=140, x=a, y=(15 + 0*b))
 
@@ -391,15 +396,19 @@ texto4.place(height=20, width=250, x=a, y=(c + 13*b))
 botao1 = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
                                        list_var[2],list_var[3],list_var[4], list_var[5], h, w)).start()])                             
 botao1.place(height=25, width=100, x=a, y=(c + 4*b))
+botao1["state"] = tk.DISABLED
 
 botao4 = ttk.Button(janela, text="Aplicar", command= lambda: maplic())                                 
 botao4.place(height=25, width=100, x=11*a, y=(c + 4*b))
+botao4["state"] = tk.DISABLED
 
 botao2 = ttk.Button(janela, text="Exibir curvas", command= lambda: exibe_curvas_de_nivel(pts))
 botao2.place(height=25, width=100,x=a, y=(c + 14*b))
+botao2["state"] = tk.DISABLED
 
 botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: exibe_3d(pts))
 botao3.place(height=25, width=100, x=11*a, y=(c + 14*b))
+botao3["state"] = tk.DISABLED
 
 botaoexit = ttk.Button(janela, text="SAIR", command= janela.destroy)
 botaoexit.place(height=25, width=75, x=48*a, y=(20 + 17*b))
