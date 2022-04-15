@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from cv2 import equalizeHist
 import numpy as np
 import cv2
 from openni import openni2
@@ -206,24 +207,22 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         img = np.swapaxes(img, 0, 1)
        
         img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
-       
         #val1 = np.amax(img)
+        img = cv2.convertScaleAbs((img), alpha=0.1) 
 
-        img = cv2.convertScaleAbs(img, alpha=0.1) 
+        img = cv2.medianBlur(img, 21)
+        img = equalizeHist(img)
         img = cv2.rotate(img, cv2.ROTATE_180) 
-     
-        im_color = cv2.applyColorMap(img, mapoption) 
-        im_color = cv2.medianBlur(im_color, 21)
-        im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
+        
 
+        im_color = cv2.applyColorMap(img, mapoption) 
         x = v1.get()
         y = v2.get()
         res = [x, y]
         im_color = cv2.resize(im_color, res, interpolation=cv2.INTER_LINEAR)
-        im_color1 = cv2.resize(im_color1, res, interpolation=cv2.INTER_LINEAR)    
-        
-        imgray = cv2.medianBlur(cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY), 43)
-
+        imgray = cv2.cvtColor (im_color, cv2.COLOR_BGR2GRAY)
+        #im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
+        #im_color1 = cv2.resize(im_color1, res, interpolation=cv2.INTER_LINEAR)   
         #val2 = np.amax(imgray)
         
         whitewall = (np.ones(im_color.shape))*255
@@ -235,9 +234,9 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
                 contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
                 cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)
         #if (type(dist) == np.float32) and (np.isnan(dist)):
-        #    cv2.putText(wall,str(int(np.nan_to_num(dist))),(10,((np.size(wall,0))-30)),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
+        #    distancia = int(np.nan_to_num(dist))
         #elif (type(dist) == np.float32):
-        #     cv2.putText(wall,str(int(dist)),(10,((np.size(wall,0))-30)),cv2.FONT_HERSHEY_DUPLEX,1,(255,255,255),1)
+        #    distancia = c(int(dist))
         
         deslocamento = np.float32([[1, 0, (v4.get())], [0, 1,( v5.get())]])
         wall = cv2.warpAffine(wall, deslocamento, (w, h))
