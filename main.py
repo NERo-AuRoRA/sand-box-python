@@ -1,18 +1,13 @@
-#==========================================================================================
-
 import tkinter as tk
 from tkinter import ttk
-
 import numpy as np
 import cv2
 from openni import openni2
-
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 import numpy as np
-
 import threading
 
 #==========================================================================================
@@ -112,8 +107,7 @@ openni2.initialize()
     #curve visualization
 #==========================================================================================
 
-def exibe_curvas_de_nivel(n_curvas_de_nivel=40, x_label=np.arange(80, 640, 1),
-                          y_label=np.arange(10, 480, 1)):
+def exibe_curvas_de_nivel(pts = []):
     """
     Função para definir a exibição das curvas de nível na imagem.
     :param depth_stream:
@@ -122,6 +116,11 @@ def exibe_curvas_de_nivel(n_curvas_de_nivel=40, x_label=np.arange(80, 640, 1),
     :param y_label:
     :return:
     """
+    if len(pts) ==0 :
+        pts = (100, 200, 300, 400)
+    n_curvas_de_nivel=40
+    x_label=np.arange((640 - pts[2]), (640 - pts[0]), 1)
+    y_label=np.arange((480 -pts[3]), (480 -pts[1]), 1)
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -131,7 +130,7 @@ def exibe_curvas_de_nivel(n_curvas_de_nivel=40, x_label=np.arange(80, 640, 1),
 
     img = np.frombuffer(frame_data, dtype=np.uint16)
 
-    z_label = np.reshape(img, (480, 640))[pts[0]:pts[2], pts[1]:pts[3]]
+    z_label = np.reshape(img, (480, 640))[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
     z_label = np.rot90(z_label, 2)
 
     fig, ax = plt.subplots()
@@ -143,8 +142,7 @@ def exibe_curvas_de_nivel(n_curvas_de_nivel=40, x_label=np.arange(80, 640, 1),
     #3D visualization
 #==========================================================================================
 
-def exibe_3d(x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1), cmap=cm.coolwarm, linewidth=0,
-             antialised=True):
+def exibe_3d(pts = []):
     """
     Função para fazer a exibição da imagem em três dimensões
     :param depth_stream:
@@ -155,9 +153,14 @@ def exibe_3d(x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1), cmap=
     :param antialised:
     :return:
     """
+    if len(pts) ==0 :
+        pts = (100, 200, 300, 400)
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
+    x_label=np.arange((640 - pts[2]), (640 - pts[0]), 1)
+    y_label=np.arange((480 - pts[3]), (480 - pts[1]), 1)
+  
     x_label, y_label = np.meshgrid(x_label, y_label)
 
     frame = depth_stream.read_frame()
@@ -165,11 +168,11 @@ def exibe_3d(x_label=np.arange(80, 640, 1), y_label=np.arange(10, 480, 1), cmap=
 
     img = np.frombuffer(frame_data, dtype=np.uint16)
 
-    z_label = np.reshape(img, (480, 640))[pts[0]:pts[2], pts[1]:pts[3]]
+    z_label = np.reshape(img, (480, 640))[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
     z_label = np.fliplr(z_label)
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(x_label, y_label, z_label, cmap=cmap, linewidth=linewidth, antialiased=antialised)
+    surf = ax.plot_surface(x_label, y_label, z_label, cmap=cm.coolwarm, linewidth=0, antialiased=True)
     ax.zaxis.set_major_formatter('{x:.02f}')
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
@@ -185,13 +188,13 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
 
-    def onMouse(event, x, y, flags, param):
-        global dist   
-        if event == cv2.EVENT_MOUSEMOVE:
-            dist = (val1/val2)*imgray[y, x]
+    #def onMouse(event, x, y, flags, param):
+      #  global dist   
+      #  if event == cv2.EVENT_MOUSEMOVE:
+       #     dist = (val1/val2)*imgray[y, x]
    
     cv2.namedWindow("Curvas em tempo real com mapa de cores", cv2.WINDOW_AUTOSIZE)
-    cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
+    #cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
     while(True):
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
@@ -201,13 +204,14 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         img = np.fliplr(img)    
         img = np.swapaxes(img, 0, 2)
         img = np.swapaxes(img, 0, 1)
-        img = img[pts[0]:pts[2], pts[1]:pts[3]]
-
-        val1 = np.amax(img)
+       
+        img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
+       
+        #val1 = np.amax(img)
 
         img = cv2.convertScaleAbs(img, alpha=0.1) 
         img = cv2.rotate(img, cv2.ROTATE_180) 
-        
+     
         im_color = cv2.applyColorMap(img, mapoption) 
         im_color = cv2.medianBlur(im_color, 21)
         im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
@@ -220,7 +224,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         
         imgray = cv2.medianBlur(cv2.cvtColor (im_color1, cv2.COLOR_BGR2GRAY), 43)
 
-        val2 = np.amax(imgray)
+        #val2 = np.amax(imgray)
         
         whitewall = (np.ones(im_color.shape))*255
         if walloption == 0: wall = whitewall
@@ -303,6 +307,7 @@ def cal_inicial():
         G = cframe_data[:, :, 1]
         B = cframe_data[:, :, 2]
         cframe_data = np.transpose(np.array([B, G, R]), [1, 2, 0])
+        cframe_data = np.fliplr(cframe_data) 
 
         cv2.imshow("Canvas", cframe_data)
         cv2.waitKey(34)
@@ -378,6 +383,7 @@ textov3.place(height=20, width=110, x=44*a, y=(c + 11*b))
 
 #==========================================================================================
     #Executor group
+
 texto3 = ttk.Label(janela, text="Parâmetros alterados, pressione exibir.")
 
 texto4 = ttk.Label(janela, text="Outros modos de exibição:")
@@ -390,14 +396,13 @@ botao1.place(height=25, width=100, x=a, y=(c + 4*b))
 botao4 = ttk.Button(janela, text="Aplicar", command= lambda: maplic())                                 
 botao4.place(height=25, width=100, x=11*a, y=(c + 4*b))
 
-botao2 = ttk.Button(janela, text="Exibir curvas", command= lambda: threading.Thread(target= exibe_curvas_de_nivel).start())
+botao2 = ttk.Button(janela, text="Exibir curvas", command= lambda: exibe_curvas_de_nivel(pts))
 botao2.place(height=25, width=100,x=a, y=(c + 14*b))
 
-botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: threading.Thread(target=exibe_3d).start())
+botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: exibe_3d(pts))
 botao3.place(height=25, width=100, x=11*a, y=(c + 14*b))
 
 botaoexit = ttk.Button(janela, text="SAIR", command= janela.destroy)
 botaoexit.place(height=25, width=75, x=48*a, y=(20 + 17*b))
-
 
 janela.mainloop()
