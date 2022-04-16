@@ -133,6 +133,9 @@ def exibe_curvas_de_nivel(pts = []):
 
     z_label = np.reshape(img, (480, 640))[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
     z_label = np.rot90(z_label, 2)
+    mmax = np.amax(z_label)
+    sub = np.ones(np.shape(z_label))*mmax
+    z_label = sub - z_label
 
     fig, ax = plt.subplots()
     CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel)
@@ -170,6 +173,9 @@ def exibe_3d(pts = []):
     img = np.frombuffer(frame_data, dtype=np.uint16)
 
     z_label = np.reshape(img, (480, 640))[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
+    mmax = np.amax(z_label)
+    sub = np.ones(np.shape(z_label))*mmax
+    z_label = sub - z_label
     z_label = np.fliplr(z_label)
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
