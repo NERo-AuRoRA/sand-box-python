@@ -304,15 +304,25 @@ def cal_inicial():
     cv2.setMouseCallback("Canvas", onMouse1)   
 
     while (True):
-        color_stream = dev.create_color_stream()
-        color_stream.start()
-        cframe = color_stream.read_frame()
-        cframe_data = np.array(cframe.get_buffer_as_triplet()).reshape([480, 640, 3])
-        R = cframe_data[:, :, 0]
-        G = cframe_data[:, :, 1]
-        B = cframe_data[:, :, 2]
-        cframe_data = np.transpose(np.array([B, G, R]), [1, 2, 0])
-        cframe_data = np.fliplr(cframe_data) 
+        depth_stream= dev.create_depth_stream()
+        depth_stream.start()
+        frame = depth_stream.read_frame()
+        frame_data = frame.get_buffer_as_uint16()
+        img = np.frombuffer(frame_data, dtype=np.uint16)
+
+        img.shape = (1, 480, 640)
+        img = np.fliplr(img)    
+        img = np.swapaxes(img, 0, 2)
+        img = np.swapaxes(img, 0, 1)
+ 
+        #val1 = np.amax(img)
+        img = cv2.convertScaleAbs((img), alpha=0.1) 
+
+        img = cv2.medianBlur(img, 23)
+        img = equalizeHist(img)
+        img = cv2.rotate(img, cv2.ROTATE_180) 
+        cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
+
         if len(pts) == 4:   
             if (pts[0] >= pts[2]) or (pts[1] >= pts[3]):
                 tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
