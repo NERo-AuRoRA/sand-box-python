@@ -136,9 +136,9 @@ def exibe_curvas_de_nivel():
     mmax = np.amax(z_label)
     sub = np.ones(np.shape(z_label))*mmax
     z_label = sub - z_label
-
+    initial_cmap = cm.get_cmap('jet')
     fig, ax = plt.subplots()
-    CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel)
+    CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel, cmap= initial_cmap)
     ax.clabel(CS, fontsize=9, inline=True)
     ax.set_title('Curva de nível')
     plt.show()
@@ -177,9 +177,10 @@ def exibe_3d():
     sub = np.ones(np.shape(z_label))*mmax
     z_label = sub - z_label
     z_label = np.fliplr(z_label)
+    initial_cmap = cm.get_cmap('jet')
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(x_label, y_label, z_label, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+    surf = ax.plot_surface(x_label, y_label, z_label, cmap= initial_cmap, linewidth=0, antialiased=True)
     ax.zaxis.set_major_formatter('{x:.02f}')
     fig.colorbar(surf, shrink=0.5, aspect=5)  
     plt.show()
@@ -214,12 +215,13 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
        
         img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
         #val1 = np.amax(img)
+        
         img = cv2.convertScaleAbs((img), alpha=0.1) 
 
         img = cv2.medianBlur(img, 23)
         img = equalizeHist(img)
         img = cv2.rotate(img, cv2.ROTATE_180) 
-        
+        img = cv2.bitwise_not(img)
 
         im_color = cv2.applyColorMap(img, mapoption) 
         x = v1.get()
@@ -294,8 +296,7 @@ def cal_inicial():
         pts = []
 
     dev = openni2.Device.open_any()
-    def onMouse1(event, x, y, flags, param):
-        
+    def onMouse1(event, x, y, flags, param):    
         if event == cv2.EVENT_LBUTTONDOWN:
             pts.append(x)
             pts.append(y)
@@ -314,15 +315,12 @@ def cal_inicial():
         img = np.fliplr(img)    
         img = np.swapaxes(img, 0, 2)
         img = np.swapaxes(img, 0, 1)
- 
-        #val1 = np.amax(img)
         img = cv2.convertScaleAbs((img), alpha=0.1) 
-
         img = cv2.medianBlur(img, 23)
         img = equalizeHist(img)
+        img = cv2.bitwise_not(img)
         img = cv2.rotate(img, cv2.ROTATE_180) 
         cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
-
         if len(pts) == 4:   
             if (pts[0] >= pts[2]) or (pts[1] >= pts[3]):
                 tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
@@ -330,9 +328,6 @@ def cal_inicial():
                 break
             else:
                 cframe_data = cframe_data[pts[1]:pts[3], pts[0]: pts[2]]  
-
-
-
         cv2.imshow("Canvas", cframe_data)
         cv2.waitKey(34)
         if (cv2.getWindowProperty("Canvas", cv2.WND_PROP_VISIBLE) <1):
@@ -346,8 +341,6 @@ def cal_inicial():
                 botao2["state"] = tk.NORMAL
                 botao3["state"] = tk.NORMAL
                 break
-
- 
     cv2.destroyAllWindows()
 
 #==========================================================================================
