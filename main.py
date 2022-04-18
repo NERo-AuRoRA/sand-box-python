@@ -108,7 +108,7 @@ openni2.initialize()
     #curve visualization
 #==========================================================================================
 
-def exibe_curvas_de_nivel(pts = []):
+def exibe_curvas_de_nivel():
     """
     Função para definir a exibição das curvas de nível na imagem.
     :param depth_stream:
@@ -117,11 +117,10 @@ def exibe_curvas_de_nivel(pts = []):
     :param y_label:
     :return:
     """
-    if len(pts) ==0 :
-        pts = (100, 200, 300, 400)
+
     n_curvas_de_nivel=40
-    x_label=np.arange((640 - pts[2]), (640 - pts[0]), 1)
-    y_label=np.arange((480 -pts[3]), (480 -pts[1]), 1)
+    x_label=np.arange((pts[0]), pts[2], 1)
+    y_label=np.arange((pts[1]), pts[3], 1)
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -131,7 +130,8 @@ def exibe_curvas_de_nivel(pts = []):
 
     img = np.frombuffer(frame_data, dtype=np.uint16)
 
-    z_label = np.reshape(img, (480, 640))[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
+    z_label = np.reshape(img, (480, 640))
+    z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
     z_label = np.rot90(z_label, 2)
     mmax = np.amax(z_label)
     sub = np.ones(np.shape(z_label))*mmax
@@ -146,7 +146,7 @@ def exibe_curvas_de_nivel(pts = []):
     #3D visualization
 #==========================================================================================
 
-def exibe_3d(pts = []):
+def exibe_3d():
     """
     Função para fazer a exibição da imagem em três dimensões
     :param depth_stream:
@@ -157,13 +157,12 @@ def exibe_3d(pts = []):
     :param antialised:
     :return:
     """
-    if len(pts) ==0 :
-        pts = (100, 200, 300, 400)
+
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
-    x_label=np.arange((640 - pts[2]), (640 - pts[0]), 1)
-    y_label=np.arange((480 - pts[3]), (480 - pts[1]), 1)
+    x_label=np.arange((pts[0]), pts[2], 1)
+    y_label=np.arange((pts[1]), pts[3], 1)
   
     x_label, y_label = np.meshgrid(x_label, y_label)
 
@@ -172,7 +171,8 @@ def exibe_3d(pts = []):
 
     img = np.frombuffer(frame_data, dtype=np.uint16)
 
-    z_label = np.reshape(img, (480, 640))[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
+    z_label = np.reshape(img, (480, 640))
+    z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
     mmax = np.amax(z_label)
     sub = np.ones(np.shape(z_label))*mmax
     z_label = sub - z_label
@@ -270,7 +270,7 @@ def maplic():
                                      list_var = [gradi.current(),var1.get(),var2.get(),
                                      var3.get(),var4.get(), True]
                                      botao1["state"] = tk.NORMAL
-                                     texto3.place(height=20, width=300, x=6*a, y=(c + 8*b))
+                                     texto3.place(height=20, width=300, x=22*a, y=(c + 4*b))
     else:
         tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
 
@@ -313,6 +313,15 @@ def cal_inicial():
         B = cframe_data[:, :, 2]
         cframe_data = np.transpose(np.array([B, G, R]), [1, 2, 0])
         cframe_data = np.fliplr(cframe_data) 
+        if len(pts) == 4:   
+            if (pts[0] >= pts[2]) or (pts[1] >= pts[3]):
+                tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
+                pts = []
+                break
+            else:
+                cframe_data = cframe_data[pts[1]:pts[3], pts[0]: pts[2]]  
+
+
 
         cv2.imshow("Canvas", cframe_data)
         cv2.waitKey(34)
@@ -321,23 +330,20 @@ def cal_inicial():
                 tk.messagebox.showinfo("Info", "calibre a área da caixa")
                 pts = []
                 break  
-        if (len(pts) == 4) :
-            if (pts[0] >= pts[2]) or (pts[1] >= pts[3]):
-                tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
-                pts = []
-                break
-            else:
+            else: 
                 botao4["state"] = tk.NORMAL
                 botao1["state"] = tk.NORMAL
                 botao2["state"] = tk.NORMAL
                 botao3["state"] = tk.NORMAL
                 break
+
+ 
     cv2.destroyAllWindows()
 
 #==========================================================================================
     #projector calibration module
 
-botao_c = ttk.Button(janela, text="Calibrar", command= lambda: threading.Thread(target=cal_inicial()).start())                                 
+botao_c = ttk.Button(janela, text="Calibrar", command= lambda: threading.Thread(target=cal_inicial).start())                                 
 botao_c.place(height=25, width=100, x=15*a, y=(15 + 0*b))
 
 texto_c = ttk.Label(janela, text="Selecione a área da caixa:")
@@ -352,7 +358,7 @@ s1 = ttk.Scale( janela, variable = v1,
            orient = "horizontal") 
 s1.set(w/2)
 s1.place(height=20, width=400, x=a, y=(c + 7*b))
-textov1 = ttk.Label(janela, text="Largura")
+textov1 = ttk.Label(janela, text="Comprimento")
 textov1.place(height=20, width=100, x=44*a, y=(c + 7*b))
 
 v2 = tk.IntVar()
@@ -361,7 +367,7 @@ s2 = ttk.Scale( janela, variable = v2,
            orient = "horizontal") 
 s2.set(h/2)
 s2.place(height=20, width=400, x=a, y=(c + 8*b))
-textov2 = ttk.Label(janela, text="Comprimento")
+textov2 = ttk.Label(janela, text="Largura")
 textov2.place(height=20, width=100, x=44*a, y=(c + 8*b))
 
 v4 = tk.IntVar()
@@ -408,11 +414,11 @@ botao4 = ttk.Button(janela, text="Aplicar", command= lambda: maplic())
 botao4.place(height=25, width=100, x=11*a, y=(c + 4*b))
 botao4["state"] = tk.DISABLED
 
-botao2 = ttk.Button(janela, text="Exibir curvas", command= lambda: exibe_curvas_de_nivel(pts))
+botao2 = ttk.Button(janela, text="Exibir curvas", command= lambda: exibe_curvas_de_nivel())
 botao2.place(height=25, width=100,x=a, y=(c + 14*b))
 botao2["state"] = tk.DISABLED
 
-botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: exibe_3d(pts))
+botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: exibe_3d())
 botao3.place(height=25, width=100, x=11*a, y=(c + 14*b))
 botao3["state"] = tk.DISABLED
 
