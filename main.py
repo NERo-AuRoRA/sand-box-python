@@ -16,7 +16,7 @@ import threading
 janela = tk.Tk()
 h = janela.winfo_screenheight()
 w = janela.winfo_screenwidth()
-janela.geometry("%dx%d+%d+%d" % (570, 570, ((w/2) - (570/2)),((h/2) - (570/2))))
+janela.geometry("%dx%d+%d+%d" % (570, 650, ((w/2) - (570/2)),((h/2) - (680/2))))
 janela.title("Interface em desenvolvimento")
 
 a = 10
@@ -80,6 +80,13 @@ thickness_curv.set('Espessura')
 thickness_curv['state'] = 'readonly'
 thickness_curv.place(height=20, width=75, x=48*a, y=(c + 3*b))
 
+set_heigth = tk.IntVar()
+set_entry = tk.Entry(janela,textvariable = set_heigth)
+set_entry.place(height=23, width=50, x=17*a, y=(c + 17*b))
+
+var_a = tk.IntVar()
+check_a = ttk.Checkbutton(janela, text='Visualizar Altitudes', variable= var_a)
+check_a.place(height=20, width=150, x=a, y=(c + 16*b))
 #==========================================================================================
     #Separators
 sep1 =ttk.Separator(janela, orient='horizontal')
@@ -93,17 +100,17 @@ sep3.place(x=0, y=(d + 12*b), relwidth=1)
 
 sep4 =ttk.Separator(janela, orient='horizontal')
 sep4.place(x=0, y=(d + 15*b), relwidth=1)
+
+sep5 =ttk.Separator(janela, orient='horizontal')
+sep5.place(x=0, y=(d + 19*b), relwidth=1)
 #==========================================================================================
     #Initializing kinect and variables
 #==========================================================================================
-
+pos = ""
 dist = 0
 list_var = [2, 1, 1, 5, 2, False]
 pts = []
-
 openni2.initialize()
-
-
 #==========================================================================================
     #curve visualization
 #==========================================================================================
@@ -117,7 +124,6 @@ def exibe_curvas_de_nivel():
     :param y_label:
     :return:
     """
-
     n_curvas_de_nivel=40
     x_label=np.arange((pts[0]), pts[2], 1)
     y_label=np.arange((pts[1]), pts[3], 1)
@@ -127,9 +133,7 @@ def exibe_curvas_de_nivel():
     x_label, y_label = np.meshgrid(x_label, y_label)
     frame = depth_stream.read_frame()
     frame_data = frame.get_buffer_as_uint16()
-
     img = np.frombuffer(frame_data, dtype=np.uint16)
-
     z_label = np.reshape(img, (480, 640))
     z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
     z_label = np.rot90(z_label, 2)
@@ -157,20 +161,15 @@ def exibe_3d():
     :param antialised:
     :return:
     """
-
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
     x_label=np.arange((pts[0]), pts[2], 1)
     y_label=np.arange((pts[1]), pts[3], 1)
-  
     x_label, y_label = np.meshgrid(x_label, y_label)
-
     frame = depth_stream.read_frame()
     frame_data = frame.get_buffer_as_uint16()
-
     img = np.frombuffer(frame_data, dtype=np.uint16)
-
     z_label = np.reshape(img, (480, 640))
     z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
     mmax = np.amax(z_label)
@@ -178,7 +177,6 @@ def exibe_3d():
     z_label = sub - z_label
     z_label = np.fliplr(z_label)
     initial_cmap = cm.get_cmap('jet')
-
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     surf = ax.plot_surface(x_label, y_label, z_label, cmap= initial_cmap, linewidth=0, antialiased=True)
     ax.zaxis.set_major_formatter('{x:.02f}')
@@ -190,49 +188,47 @@ def exibe_3d():
 #==========================================================================================
 
 def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2], n=list_var[3], 
-                                                            thicknesscurv= list_var[4], exit_1= list_var[5], h= 100, w= 100 ):                                                         
+                                                            thicknesscurv= list_var[4], exit_1= list_var[5], h= 100, w= 100, pos = "" ):                                                         
     botao1["state"] = tk.DISABLED
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
 
-    #def onMouse(event, x, y, flags, param):
-      #  global dist   
-      #  if event == cv2.EVENT_MOUSEMOVE:
-       #     dist = (val1/val2)*imgray[y, x]
-   
-    cv2.namedWindow("Curvas em tempo real com mapa de cores", cv2.WINDOW_AUTOSIZE)
-    #cv2.setMouseCallback("Curvas em tempo real com mapa de cores", onMouse)            
+    def onMouse2(event, x, y, flags, param):
+        global dist    
+        if event == cv2.EVENT_MOUSEMOVE:
+            dist = img_d[y, x]            
+            if (type(dist) == np.float32) and (np.isnan(dist)):
+                dist = int(np.nan_to_num(dist))
+            elif (type(dist) == np.float32):
+                dist = int(dist)  
+
     while(True):
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
         img = np.frombuffer(frame_data, dtype=np.uint16)
-
         img.shape = (1, 480, 640)
+
+        img_d = np.resize(img, (480, 640))
+        img_d = np.fliplr(img_d)[(pts[1]):(pts[3]), (pts[0]):(pts[2])]    
+
         img = np.fliplr(img)    
         img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)
-       
-        img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]
-        #val1 = np.amax(img)
-        
-        img = cv2.convertScaleAbs((img), alpha=0.1) 
+        img = np.swapaxes(img, 0, 1)  
 
+        img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]    
+        img = cv2.convertScaleAbs((img), alpha=0.1) 
         img = cv2.medianBlur(img, 23)
         img = equalizeHist(img)
         img = cv2.rotate(img, cv2.ROTATE_180) 
         img = cv2.bitwise_not(img)
-
         im_color = cv2.applyColorMap(img, mapoption) 
+        im_position = cv2.applyColorMap(img, mapoption) 
         x = v1.get()
         y = v2.get()
         res = [x, y]
         im_color = cv2.resize(im_color, res, interpolation=cv2.INTER_LINEAR)
         imgray = cv2.cvtColor (im_color, cv2.COLOR_BGR2GRAY)
-        #im_color1 = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
-        #im_color1 = cv2.resize(im_color1, res, interpolation=cv2.INTER_LINEAR)   
-        #val2 = np.amax(imgray)
-        
         whitewall = (np.ones(im_color.shape))*255
         if walloption == 0: wall = whitewall
         elif walloption == 1: wall = im_color
@@ -240,28 +236,30 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
             for i in range(255):     
                 ret, thresh = cv2.threshold (imgray, (n*i), 255, cv2.THRESH_BINARY)
                 contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-                cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)
-        #if (type(dist) == np.float32) and (np.isnan(dist)):
-        #    distancia = int(np.nan_to_num(dist))
-        #elif (type(dist) == np.float32):
-        #    distancia = c(int(dist))
-        
+                cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)   
         deslocamento = np.float32([[1, 0, (v4.get())], [0, 1,( v5.get())]])
         wall = cv2.warpAffine(wall, deslocamento, (w, h))
         ponto = ((v4.get() + (x/2)), (v5.get() + (y/2))) 
         rotacao = cv2.getRotationMatrix2D(ponto, v3.get(), 1.0)
         wall = cv2.warpAffine(wall, rotacao, (w, h))
-       
-        cv2.imshow("Curvas em tempo real com mapa de cores", (wall))         
+        cv2.imshow("Curvas em tempo real com mapa de cores", (wall))   
+        if (var_a.get() == 1):
+            cv2.imshow("Altitude", im_position)
+            cv2.setMouseCallback("Altitude", onMouse2) 
+            texto7["text"] = str(dist) + " mm" 
         cv2.waitKey(34)
-
-        if (cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1) or (list_var[5] == True):
-    
+        if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) <1) and (var_a.get() == 1):
+            var_a.set(0)
+            texto7["text"] = "" 
+        if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) >= 1) and (var_a.get() == 0):
+            cv2.destroyWindow("Altitude")
+            texto7["text"] = "" 
+        if (cv2.getWindowProperty("Curvas em tempo real com mapa de cores", cv2.WND_PROP_VISIBLE) <1) or (list_var[5] == True):  
             botao1["state"] = tk.NORMAL
             list_var[5] = False   
-            break
+            break      
     cv2.destroyAllWindows()    
-
+   
 #==========================================================================================
     #function to change parameters
 #==========================================================================================
@@ -296,13 +294,14 @@ def cal_inicial():
         pts = []
 
     dev = openni2.Device.open_any()
+    
     def onMouse1(event, x, y, flags, param):    
         if event == cv2.EVENT_LBUTTONDOWN:
             pts.append(x)
             pts.append(y)
 
-    cv2.namedWindow("Canvas", cv2.WINDOW_AUTOSIZE)
-    cv2.setMouseCallback("Canvas", onMouse1)   
+    cv2.namedWindow("Selecionar área", cv2.WINDOW_AUTOSIZE)
+    cv2.setMouseCallback("Selecionar área", onMouse1)  
 
     while (True):
         depth_stream= dev.create_depth_stream()
@@ -328,9 +327,9 @@ def cal_inicial():
                 break
             else:
                 cframe_data = cframe_data[pts[1]:pts[3], pts[0]: pts[2]]  
-        cv2.imshow("Canvas", cframe_data)
+        cv2.imshow("Selecionar área", cframe_data)
         cv2.waitKey(34)
-        if (cv2.getWindowProperty("Canvas", cv2.WND_PROP_VISIBLE) <1):
+        if (cv2.getWindowProperty("Selecionar área", cv2.WND_PROP_VISIBLE) <1):
             if (len(pts) != 4):
                 tk.messagebox.showinfo("Info", "calibre a área da caixa")
                 pts = []
@@ -342,7 +341,10 @@ def cal_inicial():
                 botao3["state"] = tk.NORMAL
                 break
     cv2.destroyAllWindows()
+def set_alt():
+    pos = (set_heigth.get())
 
+    print(type(pos))
 #==========================================================================================
     #projector calibration module
 
@@ -405,11 +407,23 @@ textov3.place(height=20, width=110, x=44*a, y=(c + 11*b))
 
 texto3 = ttk.Label(janela, text="Parâmetros alterados, pressione exibir.")
 
-texto4 = ttk.Label(janela, text="Outros modos de exibição:")
-texto4.place(height=20, width=250, x=a, y=(c + 13*b))
+texto4 = ttk.Label(janela, text="Modos de exibição:")
+texto4.place(height=25, width=250, x=a, y=(c + 13*b))
+
+texto5 = ttk.Label(janela, text="Distância caixa-kinect(mm):")
+texto5.place(height=25, width=160, x=a, y=(c + 17*b))
+
+texto6 = ttk.Label(janela, text="Altitude(Mova o mouse sobre a imagem):")
+texto6.place(height=25, width=280, x=a, y=(c + 18*b))
+
+texto7 = ttk.Label(janela, text= "")
+texto7.place(height=25, width=75,x=(24*a + 2), y=(c + 18*b))
+
+botao_set = ttk.Button(janela, text="Set", command= lambda: set_alt())
+botao_set.place(height=25, width=75,x=23*a, y=(c + 17*b))
 
 botao1 = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
-                                       list_var[2],list_var[3],list_var[4], list_var[5], h, w)).start()])                             
+                                       list_var[2],list_var[3],list_var[4], list_var[5], h, w, pos)).start()])                             
 botao1.place(height=25, width=100, x=a, y=(c + 4*b))
 botao1["state"] = tk.DISABLED
 
@@ -425,7 +439,7 @@ botao3 = ttk.Button(janela, text="Exibir superficie", command= lambda: exibe_3d(
 botao3.place(height=25, width=100, x=11*a, y=(c + 14*b))
 botao3["state"] = tk.DISABLED
 
-botaoexit = ttk.Button(janela, text="SAIR", command= janela.destroy)
-botaoexit.place(height=25, width=75, x=48*a, y=(20 + 17*b))
+botaoexit = ttk.Button(janela, text="Sair", command= janela.destroy)
+botaoexit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
 
 janela.mainloop()
