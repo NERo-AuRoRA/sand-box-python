@@ -334,6 +334,10 @@ def cal_inicial():
             if (pts[0] >= pts[2]) or (pts[1] >= pts[3]):
                 tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
                 pts = []
+                botao4["state"] = tk.DISABLED
+                botao1["state"] = tk.DISABLED
+                botao2["state"] = tk.DISABLED
+                botao3["state"] = tk.DISABLED
                 break
             else:
                 cframe_data = cframe_data[pts[1]:pts[3], pts[0]: pts[2]]  
@@ -343,6 +347,10 @@ def cal_inicial():
             if (len(pts) != 4):
                 tk.messagebox.showinfo("Info", "Calibre a área da caixa")
                 pts = []
+                botao4["state"] = tk.DISABLED
+                botao1["state"] = tk.DISABLED
+                botao2["state"] = tk.DISABLED
+                botao3["state"] = tk.DISABLED
                 break  
             else: 
                 botao4["state"] = tk.NORMAL
@@ -457,5 +465,10 @@ botao3["state"] = tk.DISABLED
 
 botaoexit = ttk.Button(janela, text="Sair", command= janela.destroy)
 botaoexit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
+
+imagem = tk.PhotoImage(file="Nero_Preto_SemFundo.PNG")
+imagem = imagem.subsample(8, 8) 
+im = ttk.Label(janela, image=imagem)
+im.place(height=25, width=110, x=a, y=(10 + 20*b))
 
 janela.mainloop()
