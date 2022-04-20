@@ -115,7 +115,7 @@ openni2.initialize()
     #curve visualization
 #==========================================================================================
 
-def exibe_curvas_de_nivel():
+def exibe_curvas_de_nivel(pos= 0):
     """
     Função para definir a exibição das curvas de nível na imagem.
     :param depth_stream:
@@ -137,9 +137,13 @@ def exibe_curvas_de_nivel():
     z_label = np.reshape(img, (480, 640))
     z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
     z_label = np.rot90(z_label, 2)
-    mmax = np.amax(z_label)
-    sub = np.ones(np.shape(z_label))*mmax
-    z_label = sub - z_label
+    if pos == 0:
+        mmax = np.amax(z_label)
+        sub = np.ones(np.shape(z_label))*mmax
+        z_label = sub - z_label
+    else:
+        sub = np.ones(np.shape(z_label))*pos
+        z_label = sub - z_label
     initial_cmap = cm.get_cmap('jet')
     fig, ax = plt.subplots()
     CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel, cmap= initial_cmap)
@@ -150,7 +154,7 @@ def exibe_curvas_de_nivel():
     #3D visualization
 #==========================================================================================
 
-def exibe_3d():
+def exibe_3d(pos = 0):
     """
     Função para fazer a exibição da imagem em três dimensões
     :param depth_stream:
@@ -172,9 +176,13 @@ def exibe_3d():
     img = np.frombuffer(frame_data, dtype=np.uint16)
     z_label = np.reshape(img, (480, 640))
     z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
-    mmax = np.amax(z_label)
-    sub = np.ones(np.shape(z_label))*mmax
-    z_label = sub - z_label
+    if pos == 0:
+        mmax = np.amax(z_label)
+        sub = np.ones(np.shape(z_label))*mmax
+        z_label = sub - z_label
+    else:
+        sub = np.ones(np.shape(z_label))*pos
+        z_label = sub - z_label
     initial_cmap = cm.get_cmap('jet')
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     surf = ax.plot_surface(x_label, y_label, z_label, cmap= initial_cmap, linewidth=0, antialiased=True)
@@ -455,11 +463,11 @@ botao4 = ttk.Button(janela, text="Aplicar", command= lambda: maplic())
 botao4.place(height=25, width=100, x=11*a, y=(c + 4*b))
 botao4["state"] = tk.DISABLED
 
-botao2 = ttk.Button(janela, text="Exibir Curvas", command= lambda: exibe_curvas_de_nivel())
+botao2 = ttk.Button(janela, text="Exibir Curvas", command= lambda: exibe_curvas_de_nivel(pos))
 botao2.place(height=25, width=100,x=a, y=(c + 14*b))
 botao2["state"] = tk.DISABLED
 
-botao3 = ttk.Button(janela, text="Exibir Superfície", command= lambda: exibe_3d())
+botao3 = ttk.Button(janela, text="Exibir Superfície", command= lambda: exibe_3d(pos))
 botao3.place(height=25, width=100, x=11*a, y=(c + 14*b))
 botao3["state"] = tk.DISABLED
 
