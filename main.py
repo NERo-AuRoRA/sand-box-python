@@ -110,6 +110,7 @@ pos = 0
 dist = 0
 list_var = [2, 1, 1, 5, 2, False]
 pts = []
+closed_cal = False
 openni2.initialize()
 #==========================================================================================
     #curve visualization
@@ -305,7 +306,7 @@ def fal():
     #initial calibration
 #==========================================================================================
 
-def cal_inicial():
+def cal_inicial(closed_c= closed_cal):
     global pts
     tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
     if len(pts) !=  0:
@@ -366,6 +367,13 @@ def cal_inicial():
                 botao2["state"] = tk.NORMAL
                 botao3["state"] = tk.NORMAL
                 break
+        if (closed_cal == True):
+            pts = []
+            botao4["state"] = tk.DISABLED
+            botao1["state"] = tk.DISABLED
+            botao2["state"] = tk.DISABLED
+            botao3["state"] = tk.DISABLED
+            break  
     cv2.destroyAllWindows()
 #==========================================================================================
     #set distance
@@ -378,9 +386,25 @@ def set_alt():
     else:
         tk.messagebox.showinfo("Digite a distância no formato inteiro, em milímetros")
 #==========================================================================================
+    #quit
+#==========================================================================================
+
+def quit_sand():
+    global closed_cal
+    list_var[5] = True
+    closed_cal = True
+    if tk.messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
+        janela.destroy()
+    else:
+        list_var[5] = False
+        closed_cal = False
+
+
+
+#==========================================================================================
     #projector calibration module
 
-botao_c = ttk.Button(janela, text="Calibrar", command= lambda: threading.Thread(target=cal_inicial).start())                                 
+botao_c = ttk.Button(janela, text="Calibrar", command= lambda: threading.Thread(target=cal_inicial, args= (closed_cal,)).start())                                 
 botao_c.place(height=25, width=100, x=a, y=(15 + 0*b))
 
 texto_c = ttk.Label(janela, text=" \u27f6   Selecione a Área da Caixa")
@@ -471,12 +495,13 @@ botao3 = ttk.Button(janela, text="Exibir Superfície", command= lambda: exibe_3d
 botao3.place(height=25, width=100, x=11*a, y=(c + 14*b))
 botao3["state"] = tk.DISABLED
 
-botaoexit = ttk.Button(janela, text="Sair", command= janela.destroy)
+botaoexit = ttk.Button(janela, text="Sair", command= lambda: quit_sand())
 botaoexit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
 
 imagem = tk.PhotoImage(file="Nero_Preto_SemFundo.PNG")
 imagem = imagem.subsample(8, 8) 
 im = ttk.Label(janela, image=imagem)
 im.place(height=25, width=110, x=a, y=(10 + 20*b))
+janela.protocol("WM_DELETE_WINDOW", quit_sand)
 
 janela.mainloop()
