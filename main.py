@@ -198,6 +198,7 @@ def exibe_3d(pos = 0):
 def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2], n=list_var[3], 
                                                             thicknesscurv= list_var[4], exit_1= list_var[5], h= 100, w= 100, pos= pos ):                                                         
     botao1["state"] = tk.DISABLED
+    botao_c["state"] = tk.DISABLED
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -275,6 +276,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
             texto7["text"] = ""
             texto6["text"] = "" 
             botao1["state"] = tk.NORMAL
+            botao_c["state"] = tk.NORMAL
             list_var[5] = False   
             break      
     cv2.destroyAllWindows()    
