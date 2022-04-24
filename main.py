@@ -114,6 +114,7 @@ pos1 = 0
 pos2 = 0
 dist = 0
 found_box  = 0
+key_set = []
 list_var = [2, 1, 1, 5, 2, False]
 pts = []
 closed_cal = False
@@ -224,6 +225,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
   
     botao1["state"] = tk.DISABLED
     botao_c["state"] = tk.DISABLED
+    botao_set["state"] = tk.DISABLED
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -242,8 +244,11 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         frame_data = frame.get_buffer_as_uint16()
         img = np.frombuffer(frame_data, dtype=np.uint16)
         img.shape = (1, 480, 640)
+        if pos2 == 0:
+            img = np.clip(img,(pos1 - 400), (pos1))
+        else:
+            img = np.clip(img,(pos1 - pos2), (pos1))
 
-        img = np.clip(img,(pos1 - pos2), (pos1))
         img_d1 = np.ones(np.shape(img))*(np.amax(img)) 
         img = img_d1 - img
         img_d = np.resize(img, (480, 640))
@@ -300,6 +305,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
             texto6["text"] = "" 
             botao1["state"] = tk.NORMAL
             botao_c["state"] = tk.NORMAL
+            botao_set["state"] = tk.NORMAL
             list_var[5] = False   
             break      
     cv2.destroyAllWindows()    
@@ -387,12 +393,19 @@ def cal_inicial():
                 botao2["state"] = tk.DISABLED
                 botao3["state"] = tk.DISABLED
                 break  
-            else: 
+            elif (found_box  != 0):
                 botao4["state"] = tk.NORMAL
                 botao1["state"] = tk.NORMAL
                 botao2["state"] = tk.NORMAL
                 botao3["state"] = tk.NORMAL
                 break
+            else:
+                botao4["state"] = tk.DISABLED
+                botao1["state"] = tk.DISABLED
+                botao2["state"] = tk.DISABLED
+                botao3["state"] = tk.DISABLED
+                break
+
         if (closed_cal == True):
             pts = []
             botao4["state"] = tk.DISABLED
@@ -402,8 +415,10 @@ def cal_inicial():
             break  
     cv2.destroyAllWindows()
 
-def set_f(): 
-                                                     
+def set_f():      
+    global key_set
+    if len(key_set) != 0:
+        key_set = []                          
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -411,7 +426,8 @@ def set_f():
     def onMouse2(event, x, y, flags, param):
         global found_box   
         if event == cv2.EVENT_LBUTTONDOWN:
-            found_box  = img_d[y, x]            
+            found_box  = img_d[y, x]   
+            key_set.append(x)
             if (type(found_box ) == np.float32) and (np.isnan(found_box )):
                 found_box  = int(np.nan_to_num(found_box ))
             elif (type(found_box ) == np.float32):
@@ -427,17 +443,12 @@ def set_f():
         img_d = np.fliplr(img_d)
 
         img = np.fliplr(img)  
-
         img = np.swapaxes(img, 0, 2)
         img = np.swapaxes(img, 0, 1)  
-
         img = cv2.convertScaleAbs((img), alpha=0.1) 
-        img = cv2.medianBlur(img, 19)
-       
-        img = cv2.rotate(img, cv2.ROTATE_180) 
-        
+        img = cv2.medianBlur(img, 19)     
+        img = cv2.rotate(img, cv2.ROTATE_180)     
         im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
-
 
         cv2.imshow("Alt", (im_color))   
         cv2.setMouseCallback("Alt", onMouse2) 
@@ -450,9 +461,21 @@ def set_f():
             botao2["state"] = tk.DISABLED
             botao3["state"] = tk.DISABLED
             break 
-        if  (found_box  != 0):
-            break
-            
+        if  (len(key_set)  != 0):
+            if (len(pts) == 4):
+                botao4["state"] = tk.NORMAL
+                botao1["state"] = tk.NORMAL
+                botao2["state"] = tk.NORMAL
+                botao3["state"] = tk.NORMAL
+                break
+            else:
+                break
+        if (closed_cal == True):
+            botao4["state"] = tk.DISABLED
+            botao1["state"] = tk.DISABLED
+            botao2["state"] = tk.DISABLED
+            botao3["state"] = tk.DISABLED
+            break     
     cv2.destroyAllWindows()    
    
 def set_alt():
@@ -471,11 +494,13 @@ def quit_sand():
     global closed_cal
     list_var[5] = True
     closed_cal = True
+
     if tk.messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
         janela.destroy()
     else:
         list_var[5] = False
         closed_cal = False
+
 
 
 
@@ -552,11 +577,11 @@ texto6 = ttk.Label(janela, text="")
 texto6.place(height=20, width=280, x=10*a, y=(c + 4*b))
 
 
-botao_set = ttk.Button(janela, text="Calibrar", command= lambda: set_f())
+botao_set = ttk.Button(janela, text="Calibrar", command= lambda: threading.Thread(target=set_f).start())
 botao_set.place(height=25, width=100,x=a, y=(15 + 1*b))
 
 botao1 = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
-                                       list_var[2],list_var[3],list_var[4], h, w, found_box, 300)).start()])                             
+                                       list_var[2],list_var[3],list_var[4], h, w, found_box, pos2)).start()])                             
 botao1.place(height=25, width=100, x=a, y=(c + 8*b))
 botao1["state"] = tk.DISABLED
 
@@ -572,7 +597,7 @@ botao3 = ttk.Button(janela, text="Exibir Superfície", command= lambda: exibe_3d
 botao3.place(height=25, width=100, x=11*a, y=(c + 18*b))
 botao3["state"] = tk.DISABLED
 
-botaot = ttk.Button(janela, text="Set", command= lambda: quit_sand())
+botaot = ttk.Button(janela, text="Set", command= lambda: set_alt())
 botaot.place(height=22, width=75, x=21*a, y=(c + 3*b))
 
 botaoexit = ttk.Button(janela, text="Sair", command= lambda: quit_sand())
