@@ -82,19 +82,19 @@ thickness_curv.place(height=20, width=125, x=42*a + 9 , y=(c + 7*b))
 
 set_heigth = tk.IntVar()
 set_entry = tk.Entry(janela,textvariable = set_heigth)
-set_entry.place(height=23, width=50, x=17*a, y=(c + 3*b))
+set_entry.place(height=20, width=50, x=15*a, y=(c + 3*b))
 
-set_heigth_T = tk.IntVar()
-set_entry_T = tk.Entry(janela,textvariable = set_heigth_T)
-set_entry_T.place(height=23, width=50, x=40*a, y=(c + 3*b))
+textoset = ttk.Label(janela, text="Altitude Máxima:")
+textoset.place(height=20, width=100, x=a, y=(c + 3*b))
+
 
 var_a = tk.IntVar()
 check_a = ttk.Checkbutton(janela, text='Exibir Altura', variable= var_a)
-check_a.place(height=20, width=150, x=a, y=(c + 2*b))
+check_a.place(height=20, width=150, x=a, y=(c + 4*b))
 #==========================================================================================
     #Separators
 sep1 =ttk.Separator(janela, orient='horizontal')
-sep1.place(x=0, y=(d + 1*b), relwidth=1)
+sep1.place(x=0, y=(d + 2*b), relwidth=1)
 
 sep2 =ttk.Separator(janela, orient='horizontal')
 sep2.place(x=0, y=(d + 5*b), relwidth=1)
@@ -113,6 +113,7 @@ sep5.place(x=0, y=(d + 19*b), relwidth=1)
 pos1 = 0
 pos2 = 0
 dist = 0
+found_box  = 0
 list_var = [2, 1, 1, 5, 2, False]
 pts = []
 closed_cal = False
@@ -207,7 +208,7 @@ def exibe_3d():
 #==========================================================================================
 
 def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2], n=list_var[3], 
-                                                            thicknesscurv= list_var[4], h= 100, w= 100, pos1= pos1,pos2= pos2 ):                                                         
+                                                            thicknesscurv= list_var[4], h= 100, w= 100, pos1= 1700,pos2= pos2 ):                                                         
     """
     Função para fazer a exibição da imagem em três dimensões
     :param mapoption:
@@ -220,8 +221,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
     :param pos:
     :return:
     """
-    padrao1 = 1600
-    padrao2 = 300
+  
     botao1["state"] = tk.DISABLED
     botao_c["state"] = tk.DISABLED
     dev = openni2.Device.open_any()
@@ -243,17 +243,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         img = np.frombuffer(frame_data, dtype=np.uint16)
         img.shape = (1, 480, 640)
 
-        if pos1 == 0:
-            if pos2 == 0:
-                img = np.clip(img,(padrao1 - padrao2), (padrao1))
-            else:
-                img = np.clip(img, padrao1 - pos2, padrao1)
-        else:
-            if pos2 == 0:
-                img = np.clip(img, pos1 - padrao2, pos1)
-            else:
-                img = np.clip(img, pos1 - pos2, pos1)
-
+        img = np.clip(img,(pos1 - pos2), (pos1))
         img_d1 = np.ones(np.shape(img))*(np.amax(img)) 
         img = img_d1 - img
         img_d = np.resize(img, (480, 640))
@@ -265,7 +255,7 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         img = np.swapaxes(img, 0, 1)  
 
         img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]    
-        img = cv2.convertScaleAbs((img), alpha=2) 
+        img = cv2.convertScaleAbs((img), alpha=3.5) 
         img = cv2.medianBlur(img, 19)
        
         img = cv2.rotate(img, cv2.ROTATE_180) 
@@ -294,19 +284,15 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         if (var_a.get() == 1):
             cv2.imshow("Altitude", im_position)
             cv2.setMouseCallback("Altitude", onMouse2) 
-            texto7["text"] = str(dist) + " mm" 
-            texto6["text"] = "Altitude(Mova o Cursor Sobre a Imagem):"
+            texto6["text"] = "(Mova o Cursor Sobre a Imagem): " + str(dist) + " mm"
         cv2.waitKey(34)
         if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) <1) and (var_a.get() == 1):
             var_a.set(0)
-            texto7["text"] = "" 
             texto6["text"] = ""
         if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) >= 1) and (var_a.get() == 0):
             cv2.destroyWindow("Altitude")
-            texto7["text"] = ""
             texto6["text"] = "" 
         if (cv2.getWindowProperty("Tempo Real", cv2.WND_PROP_VISIBLE) <1) or (list_var[5] == True):  
-            texto7["text"] = ""
             texto6["text"] = "" 
             botao1["state"] = tk.NORMAL
             botao_c["state"] = tk.NORMAL
@@ -356,6 +342,7 @@ def cal_inicial():
 
     cv2.namedWindow("Selecionar", cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback("Selecionar", onMouse1)  
+
 
     while (True):
         depth_stream= dev.create_depth_stream()
@@ -410,20 +397,68 @@ def cal_inicial():
             botao3["state"] = tk.DISABLED
             break  
     cv2.destroyAllWindows()
-#==========================================================================================
-    #set distance
-#==========================================================================================
+
+def set_f(): 
+                                                     
+    dev = openni2.Device.open_any()
+    depth_stream = dev.create_depth_stream()
+    depth_stream.start()
+
+    def onMouse2(event, x, y, flags, param):
+        global found_box   
+        if event == cv2.EVENT_LBUTTONDOWN:
+            found_box  = img_d[y, x]            
+            if (type(found_box ) == np.float32) and (np.isnan(found_box )):
+                found_box  = int(np.nan_to_num(found_box ))
+            elif (type(found_box ) == np.float32):
+                found_box  = int(found_box )  
+
+    while(True):
+        frame = depth_stream.read_frame()
+        frame_data = frame.get_buffer_as_uint16()
+        img = np.frombuffer(frame_data, dtype=np.uint16)
+        img.shape = (1, 480, 640)
+
+        img_d = np.resize(img, (480, 640))
+        img_d = np.fliplr(img_d)
+
+        img = np.fliplr(img)  
+
+        img = np.swapaxes(img, 0, 2)
+        img = np.swapaxes(img, 0, 1)  
+
+        img = cv2.convertScaleAbs((img), alpha=0.1) 
+        img = cv2.medianBlur(img, 19)
+       
+        img = cv2.rotate(img, cv2.ROTATE_180) 
+        
+        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
+
+
+        cv2.imshow("Alt", (im_color))   
+        cv2.setMouseCallback("Alt", onMouse2) 
+        cv2.waitKey(34)
+
+        if (cv2.getWindowProperty("Alt", cv2.WND_PROP_VISIBLE) <1):  
+            tk.messagebox.showinfo("Info", "Selecione distância")
+            botao4["state"] = tk.DISABLED
+            botao1["state"] = tk.DISABLED
+            botao2["state"] = tk.DISABLED
+            botao3["state"] = tk.DISABLED
+            break 
+        if  (found_box  != 0):
+            break
+            
+    cv2.destroyAllWindows()    
+   
 def set_alt():
-    global pos1, pos2
+    global pos2
     list_var[5] = True
-    if type(pos1) == int:
-        pos1 = (set_heigth.get())
-    else:
-        tk.messagebox.showinfo("Digite a distância no formato inteiro, em milímetros")
     if type(pos2) == int:
-        pos2 = (set_heigth_T.get())
+        pos2 = (set_heigth.get())
     else:
         tk.messagebox.showinfo("Digite a distância no formato inteiro, em milímetros")
+
 #==========================================================================================
     #quit
 #==========================================================================================
@@ -448,6 +483,9 @@ botao_c.place(height=25, width=100, x=a, y=(15 + 0*b))
 
 texto_c = ttk.Label(janela, text=" \u27f6   Selecione a Área da Caixa")
 texto_c.place(height=25, width=170, x=12*a, y=(15 + 0*b))
+
+texto_c2 = ttk.Label(janela, text=" \u27f6   Selecione Fundo da Caixa")
+texto_c2.place(height=25, width=170, x=12*a, y=(15 + 1*b))
 
 texto_p = ttk.Label(janela, text="Projete e Ajuste: (Win + P) \u27f6 (Estender) \u27f6 (Mova a Imagem)")
 texto_p.place(height=25, width=400, x=a, y=(c + 10*b))
@@ -505,23 +543,16 @@ texto3 = ttk.Label(janela, text="Parâmetros Alterados, Pressione Exibir.")
 texto4 = ttk.Label(janela, text="Modos de Exibição:")
 texto4.place(height=25, width=250, x=a, y=(c + 17*b))
 
-texto5 = ttk.Label(janela, text="Distância Caixa-Kinect(mm):")
-texto5.place(height=25, width=160, x=a, y=(c + 3*b))
-
-texto5 = ttk.Label(janela, text="Distância Topo-Kinect(mm):")
-texto5.place(height=25, width=160, x=24*a, y=(c + 3*b))
 
 texto6 = ttk.Label(janela, text="")
-texto6.place(height=25, width=280, x=a, y=(c + 18*b))
+texto6.place(height=20, width=280, x=10*a, y=(c + 4*b))
 
-texto7 = ttk.Label(janela, text= "")
-texto7.place(height=25, width=75,x=(24*a + 2), y=(c + 18*b))
 
-botao_set = ttk.Button(janela, text="Set", command= lambda: set_alt())
-botao_set.place(height=25, width=75,x=48*a, y=(c + 3*b))
+botao_set = ttk.Button(janela, text="Calibrar", command= lambda: set_f())
+botao_set.place(height=25, width=100,x=a, y=(15 + 1*b))
 
 botao1 = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
-                                       list_var[2],list_var[3],list_var[4], h, w, pos1, pos2)).start()])                             
+                                       list_var[2],list_var[3],list_var[4], h, w, found_box, 500)).start()])                             
 botao1.place(height=25, width=100, x=a, y=(c + 8*b))
 botao1["state"] = tk.DISABLED
 
@@ -536,6 +567,9 @@ botao2["state"] = tk.DISABLED
 botao3 = ttk.Button(janela, text="Exibir Superfície", command= lambda: exibe_3d())
 botao3.place(height=25, width=100, x=11*a, y=(c + 18*b))
 botao3["state"] = tk.DISABLED
+
+botaot = ttk.Button(janela, text="Set", command= lambda: quit_sand())
+botaot.place(height=22, width=75, x=21*a, y=(c + 3*b))
 
 botaoexit = ttk.Button(janela, text="Sair", command= lambda: quit_sand())
 botaoexit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
