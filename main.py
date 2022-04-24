@@ -142,18 +142,10 @@ def exibe_curvas_de_nivel():
     z_label = np.reshape(img, (480, 640))
     z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
     z_label = np.rot90(z_label, 2)
-
-    if pos1 == 0:
-        if pos2 == 0:
-            z_label = np.clip(z_label, padrao1 - padrao2, padrao1)
-        else:
-            z_label = np.clip(z_label, padrao1 - pos2, padrao1)
+    if pos2 == 0:
+        z_label = np.clip(z_label,(found_box - 400), (found_box))
     else:
-        if pos2 == 0:
-            z_label = np.clip(z_label, pos1 - padrao2, pos1)
-        else:
-            z_label = np.clip(z_label, pos1 - pos2, pos1)    
-
+        z_label = np.clip(z_label,(found_box - pos2), (found_box))
     img_d1 = np.ones(np.shape(z_label))*(np.amax(z_label)) 
     z_label = img_d1 - z_label
     initial_cmap = cm.get_cmap('jet')
@@ -170,8 +162,7 @@ def exibe_3d():
     """
     Função para fazer a exibição da imagem em três dimensões
     """
-    padrao1 = 1700
-    padrao2 = 600
+ 
     dev = openni2.Device.open_any()
     depth_stream = dev.create_depth_stream()
     depth_stream.start()
@@ -183,18 +174,10 @@ def exibe_3d():
     img = np.frombuffer(frame_data, dtype=np.uint16)
     z_label = np.reshape(img, (480, 640))
     z_label =  z_label[(pts[1]):(pts[3]), (pts[0]):(pts[2])]
-
-    if pos1 == 0:
-        if pos2 == 0:
-            z_label = np.clip(z_label, padrao1 - padrao2, padrao1)
-        else:
-            z_label = np.clip(z_label, padrao1 - pos2, padrao1)
+    if pos2 == 0:
+        z_label = np.clip(z_label,(found_box - 400), (found_box))
     else:
-        if pos2 == 0:
-            z_label = np.clip(z_label, pos1 - padrao2, pos1)
-        else:
-            z_label = np.clip(z_label, pos1 - pos2, pos1)
-
+        z_label = np.clip(z_label,(found_box - pos2), (found_box))
     img_d1 = np.ones(np.shape(z_label))*(np.amax(z_label)) 
     z_label = img_d1 - z_label
     initial_cmap = cm.get_cmap('jet')
@@ -320,7 +303,7 @@ def maplic():
                                      list_var = [gradi.current(),var1.get(),var2.get(),
                                      var3.get(),var4.get(), True]
                                      botao1["state"] = tk.NORMAL
-                                     texto3.place(height=25, width=300, x=22*a, y=(c + 4*b))
+                                     texto3.place(height=25, width=300, x=22*a, y=(c + 8*b))
     else:
         tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
 
@@ -500,9 +483,6 @@ def quit_sand():
     else:
         list_var[5] = False
         closed_cal = False
-
-
-
 
 #==========================================================================================
     #projector calibration module
