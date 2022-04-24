@@ -254,8 +254,12 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         img = np.swapaxes(img, 0, 2)
         img = np.swapaxes(img, 0, 1)  
 
-        img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]    
-        img = cv2.convertScaleAbs((img), alpha=3.5) 
+        img = img[(480 -pts[3]):(480 -pts[1]), (640 - pts[2]):(640 - pts[0])]   
+
+        alpha = 255 / ((np.amax(img) - np.amin(img)))
+        beta = -np.amin(img) * alpha
+
+        img = cv2.convertScaleAbs((img), alpha=alpha, beta = beta) 
         img = cv2.medianBlur(img, 19)
        
         img = cv2.rotate(img, cv2.ROTATE_180) 
@@ -552,7 +556,7 @@ botao_set = ttk.Button(janela, text="Calibrar", command= lambda: set_f())
 botao_set.place(height=25, width=100,x=a, y=(15 + 1*b))
 
 botao1 = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
-                                       list_var[2],list_var[3],list_var[4], h, w, found_box, 500)).start()])                             
+                                       list_var[2],list_var[3],list_var[4], h, w, found_box, 300)).start()])                             
 botao1.place(height=25, width=100, x=a, y=(c + 8*b))
 botao1["state"] = tk.DISABLED
 
