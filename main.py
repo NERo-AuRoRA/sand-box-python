@@ -1,3 +1,4 @@
+from ast import excepthandler
 import tkinter as tk
 from tkinter import ttk
 from cv2 import equalizeHist
@@ -100,35 +101,38 @@ def exibe_curvas_de_nivel():
     """
     Função para definir a exibição das curvas de nível na imagem.
     """
-    dev = openni2.Device.open_any()
-    depth_stream = dev.create_depth_stream()
-    depth_stream.start()
-    frame = depth_stream.read_frame()
-    frame_data = frame.get_buffer_as_uint16()
-    img = np.frombuffer(frame_data, dtype=np.uint16)
-
-    n_curvas_de_nivel=30
-    x_label=np.arange((points_area[0]), points_area[2], 1)
-    y_label=np.arange((points_area[1]), points_area[3], 1)
-    x_label, y_label = np.meshgrid(x_label, y_label)
-   
-    z_label = np.reshape(img, (480, 640))
-    z_label =  z_label[(points_area[1]):(points_area[3]), (points_area[0]):(points_area[2])]
-    z_label = np.rot90(z_label, 2)
-
-    if alt_max == 0:
-        z_label = np.clip(z_label,(found_box - 400), (found_box))
+    try:
+        dev = openni2.Device.open_any()
+        depth_stream = dev.create_depth_stream()
+        depth_stream.start() 
+        frame = depth_stream.read_frame()
+        frame_data = frame.get_buffer_as_uint16()
+    except:
+        tk.messagebox.showerror("Erro","Conecte o kinect")
     else:
-        z_label = np.clip(z_label,(found_box - alt_max), (found_box))
-    img_d1 = np.ones(np.shape(z_label))*(np.amax(z_label)) 
-    z_label = img_d1 - z_label
+        img = np.frombuffer(frame_data, dtype=np.uint16)
+        n_curvas_de_nivel=30
+        x_label=np.arange((points_area[0]), points_area[2], 1)
+        y_label=np.arange((points_area[1]), points_area[3], 1)
+        x_label, y_label = np.meshgrid(x_label, y_label)
+    
+        z_label = np.reshape(img, (480, 640))
+        z_label =  z_label[(points_area[1]):(points_area[3]), (points_area[0]):(points_area[2])]
+        z_label = np.rot90(z_label, 2)
 
-    initial_cmap = cm.get_cmap('jet')
-    fig, ax = plt.subplots()
-    CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel, cmap= initial_cmap)
-    ax.clabel(CS, fontsize=9, inline=True)
-    ax.set_title('Curva de nível')
-    plt.show()
+        if alt_max == 0:
+            z_label = np.clip(z_label,(found_box - 400), (found_box))
+        else:
+            z_label = np.clip(z_label,(found_box - alt_max), (found_box))
+        img_d1 = np.ones(np.shape(z_label))*(np.amax(z_label)) 
+        z_label = img_d1 - z_label
+
+        initial_cmap = cm.get_cmap('jet')
+        fig, ax = plt.subplots()
+        CS = ax.contour(x_label, y_label, z_label, n_curvas_de_nivel, cmap= initial_cmap)
+        ax.clabel(CS, fontsize=9, inline=True)
+        ax.set_title('Curva de nível')
+        plt.show()
 #==========================================================================================
     #3D visualization
 #==========================================================================================
@@ -136,33 +140,37 @@ def exibe_3d():
     """
     Função para fazer a exibição da imagem em três dimensões
     """
-    dev = openni2.Device.open_any()
-    depth_stream = dev.create_depth_stream()
-    depth_stream.start()
-    frame = depth_stream.read_frame()
-    frame_data = frame.get_buffer_as_uint16()
-    img = np.frombuffer(frame_data, dtype=np.uint16)
-    
-    x_label=np.arange((points_area[0]), points_area[2], 1)
-    y_label=np.arange((points_area[1]), points_area[3], 1)
-    x_label, y_label = np.meshgrid(x_label, y_label)
-
-    z_label = np.reshape(img, (480, 640))
-    z_label =  z_label[(points_area[1]):(points_area[3]), (points_area[0]):(points_area[2])]
-
-    if alt_max == 0:
-        z_label = np.clip(z_label,(found_box - 400), (found_box))
+    try:
+        dev = openni2.Device.open_any()
+        depth_stream = dev.create_depth_stream()
+        depth_stream.start() 
+        frame = depth_stream.read_frame()
+        frame_data = frame.get_buffer_as_uint16()
+    except:
+        tk.messagebox.showerror("Erro","Conecte o kinect")  
     else:
-        z_label = np.clip(z_label,(found_box - alt_max), (found_box))
-    img_d1 = np.ones(np.shape(z_label))*(np.amax(z_label)) 
-    z_label = img_d1 - z_label
+        img = np.frombuffer(frame_data, dtype=np.uint16)
+        
+        x_label=np.arange((points_area[0]), points_area[2], 1)
+        y_label=np.arange((points_area[1]), points_area[3], 1)
+        x_label, y_label = np.meshgrid(x_label, y_label)
 
-    initial_cmap = cm.get_cmap('jet')
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(x_label, y_label, z_label, cmap= initial_cmap, linewidth=0, antialiased=True)
-    ax.zaxis.set_major_formatter('{x:.02f}')
-    fig.colorbar(surf, shrink=0.5, aspect=5)  
-    plt.show()
+        z_label = np.reshape(img, (480, 640))
+        z_label =  z_label[(points_area[1]):(points_area[3]), (points_area[0]):(points_area[2])]
+
+        if alt_max == 0:
+            z_label = np.clip(z_label,(found_box - 400), (found_box))
+        else:
+            z_label = np.clip(z_label,(found_box - alt_max), (found_box))
+        img_d1 = np.ones(np.shape(z_label))*(np.amax(z_label)) 
+        z_label = img_d1 - z_label
+
+        initial_cmap = cm.get_cmap('jet')
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        surf = ax.plot_surface(x_label, y_label, z_label, cmap= initial_cmap, linewidth=0, antialiased=True)
+        ax.zaxis.set_major_formatter('{x:.02f}')
+        fig.colorbar(surf, shrink=0.5, aspect=5)  
+        plt.show()
 #==========================================================================================
     #display in real time
 #==========================================================================================
@@ -180,240 +188,247 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
     :param pos:
     :return:
     """
-    dev = openni2.Device.open_any()
-    depth_stream = dev.create_depth_stream()
-    depth_stream.start()
+    try:
+        dev = openni2.Device.open_any()
+        depth_stream = dev.create_depth_stream()
+        depth_stream.start()
+    except:
+        tk.messagebox.showerror("Erro","Conecte o kinect")
+    else:
 
-    botao_exibTR["state"] = tk.DISABLED
-    botao_calibration1["state"] = tk.DISABLED
-    botao_calibration2["state"] = tk.DISABLED
+        botao_exibTR["state"] = tk.DISABLED
+        botao_calibration1["state"] = tk.DISABLED
+        botao_calibration2["state"] = tk.DISABLED
 
-    def onMouse2(event, x, y, flags, param):
-        global dist    
-        if event == cv2.EVENT_MOUSEMOVE:
-            dist = img_d[y, x]            
-            if (type(dist) == np.float32) and (np.isnan(dist)):
-                dist = int(np.nan_to_num(dist))
-            elif (type(dist) == np.float32):
-                dist = int(dist)  
+        def onMouse2(event, x, y, flags, param):
+            global dist    
+            if event == cv2.EVENT_MOUSEMOVE:
+                dist = img_d[y, x]            
+                if (type(dist) == np.float32) and (np.isnan(dist)):
+                    dist = int(np.nan_to_num(dist))
+                elif (type(dist) == np.float32):
+                    dist = int(dist)  
 
-    while(True):
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-        img.shape = (1, 480, 640)
+        while(True):
+            frame = depth_stream.read_frame()
+            frame_data = frame.get_buffer_as_uint16()
+            img = np.frombuffer(frame_data, dtype=np.uint16)
+            img.shape = (1, 480, 640)
 
-        if alt_max == 0:
-            img = np.clip(img,(pos1 - 400), (pos1))
-        else:
-            img = np.clip(img,(pos1 - alt_max), (pos1))
+            if alt_max == 0:
+                img = np.clip(img,(pos1 - 400), (pos1))
+            else:
+                img = np.clip(img,(pos1 - alt_max), (pos1))
 
-        img = (np.ones(np.shape(img))*(np.amax(img))) - img
+            img = (np.ones(np.shape(img))*(np.amax(img))) - img
+            
+            img_d = np.resize(img, (480, 640))
+            img_d = np.fliplr(img_d)[(points_area[1]):(points_area[3]), (points_area[0]):(points_area[2])]  
+
+            img = np.fliplr(img)  
+            img = np.swapaxes(img, 0, 2)
+            img = np.swapaxes(img, 0, 1)  
+            img = img[(480 -points_area[3]):(480 -points_area[1]), (640 - points_area[2]):(640 - points_area[0])]   
+
+            alpha = 255 / ((np.amax(img) - np.amin(img)))
+            beta = -np.amin(img) * alpha
+            img = cv2.convertScaleAbs((img), alpha=alpha, beta = beta) 
+            img = cv2.medianBlur(img, 19)   
+            img = cv2.rotate(img, cv2.ROTATE_180)       
+            im_color = cv2.applyColorMap(img, mapoption) 
+            im_position = im_color 
+            
+            x = v1.get()
+            y = v2.get()
+            res = [x, y]
+            im_color = cv2.resize(im_color, res, interpolation=cv2.INTER_LINEAR)
+            imgray = cv2.cvtColor (im_color, cv2.COLOR_BGR2GRAY)
+            whitewall = (np.ones(im_color.shape))*255
+            if walloption == 0: wall = whitewall
+            elif walloption == 1: wall = im_color
+            if curv == 1:
+                for i in range(255):     
+                    ret, thresh = cv2.threshold (imgray, (n*i), 255, cv2.THRESH_BINARY)
+                    contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                    cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)   
+            
+            deslocamento = np.float32([[1, 0, (v4.get())], [0, 1,( v5.get())]])
+            wall = cv2.warpAffine(wall, deslocamento, (w, h))
+            ponto = ((v4.get() + (x/2)), (v5.get() + (y/2))) 
+            rotacao = cv2.getRotationMatrix2D(ponto, v3.get(), 1.0)
+            wall = cv2.warpAffine(wall, rotacao, (w, h))
+            
+            cv2.imshow("Tempo Real", (wall))            
+            if (var_a.get() == 1):
+                cv2.imshow("Altitude", im_position)
+                cv2.setMouseCallback("Altitude", onMouse2) 
+                texto_view_alt["text"] = "(Mova o Cursor Sobre a Imagem): " + str(dist) + " mm"
+            cv2.waitKey(34)  
         
-        img_d = np.resize(img, (480, 640))
-        img_d = np.fliplr(img_d)[(points_area[1]):(points_area[3]), (points_area[0]):(points_area[2])]  
-
-        img = np.fliplr(img)  
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)  
-        img = img[(480 -points_area[3]):(480 -points_area[1]), (640 - points_area[2]):(640 - points_area[0])]   
-
-        alpha = 255 / ((np.amax(img) - np.amin(img)))
-        beta = -np.amin(img) * alpha
-        img = cv2.convertScaleAbs((img), alpha=alpha, beta = beta) 
-        img = cv2.medianBlur(img, 19)   
-        img = cv2.rotate(img, cv2.ROTATE_180)       
-        im_color = cv2.applyColorMap(img, mapoption) 
-        im_position = im_color 
-        
-        x = v1.get()
-        y = v2.get()
-        res = [x, y]
-        im_color = cv2.resize(im_color, res, interpolation=cv2.INTER_LINEAR)
-        imgray = cv2.cvtColor (im_color, cv2.COLOR_BGR2GRAY)
-        whitewall = (np.ones(im_color.shape))*255
-        if walloption == 0: wall = whitewall
-        elif walloption == 1: wall = im_color
-        if curv == 1:
-            for i in range(255):     
-                ret, thresh = cv2.threshold (imgray, (n*i), 255, cv2.THRESH_BINARY)
-                contours, his  = cv2.findContours (thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-                cv2.drawContours(wall, contours, -1, (0,0,0), thicknesscurv)   
-        
-        deslocamento = np.float32([[1, 0, (v4.get())], [0, 1,( v5.get())]])
-        wall = cv2.warpAffine(wall, deslocamento, (w, h))
-        ponto = ((v4.get() + (x/2)), (v5.get() + (y/2))) 
-        rotacao = cv2.getRotationMatrix2D(ponto, v3.get(), 1.0)
-        wall = cv2.warpAffine(wall, rotacao, (w, h))
-        
-        cv2.imshow("Tempo Real", (wall))            
-        if (var_a.get() == 1):
-            cv2.imshow("Altitude", im_position)
-            cv2.setMouseCallback("Altitude", onMouse2) 
-            texto_view_alt["text"] = "(Mova o Cursor Sobre a Imagem): " + str(dist) + " mm"
-        cv2.waitKey(34)  
-       
-        if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) <1) and (var_a.get() == 1):
-            var_a.set(0)
-            texto_view_alt["text"] = ""
-        if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) >= 1) and (var_a.get() == 0):
-            cv2.destroyWindow("Altitude")
-            texto_view_alt["text"] = "" 
-        if (cv2.getWindowProperty("Tempo Real", cv2.WND_PROP_VISIBLE) <1) or (list_var[5] == True):  
-            texto_view_alt["text"] = "" 
-            botao_exibTR["state"] = tk.NORMAL
-            botao_calibration1["state"] = tk.NORMAL
-            botao_calibration2["state"] = tk.NORMAL
-            list_var[5] = False   
-            break      
-    cv2.destroyAllWindows()    
+            if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) <1) and (var_a.get() == 1):
+                var_a.set(0)
+                texto_view_alt["text"] = ""
+            if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) >= 1) and (var_a.get() == 0):
+                cv2.destroyWindow("Altitude")
+                texto_view_alt["text"] = "" 
+            if (cv2.getWindowProperty("Tempo Real", cv2.WND_PROP_VISIBLE) <1) or (list_var[5] == True):  
+                texto_view_alt["text"] = "" 
+                botao_exibTR["state"] = tk.NORMAL
+                botao_calibration1["state"] = tk.NORMAL
+                botao_calibration2["state"] = tk.NORMAL
+                list_var[5] = False   
+                break      
+        cv2.destroyAllWindows()    
 #==========================================================================================
     #initial calibration
 #==========================================================================================
 def cal_inicial(): 
     global points_area
+    try:
+        dev = openni2.Device.open_any()
+        depth_stream= dev.create_depth_stream()
+        depth_stream.start()
+    except:
+        tk.messagebox.showerror("Erro","Conecte o kinect")
+    else:
+        tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
+        if len(points_area) !=  0:
+            points_area = []
+        def onMouse1(event, x, y, flags, param):    
+            if event == cv2.EVENT_LBUTTONDOWN:
+                points_area.append(x)
+                points_area.append(y)
+        cv2.namedWindow("Selecionar", cv2.WINDOW_AUTOSIZE)
+        cv2.setMouseCallback("Selecionar", onMouse1)  
+        while (True):
+            frame = depth_stream.read_frame()
+            frame_data = frame.get_buffer_as_uint16()
+            img = np.frombuffer(frame_data, dtype=np.uint16)
+            img.shape = (1, 480, 640)
 
-    dev = openni2.Device.open_any()
-    depth_stream= dev.create_depth_stream()
-    depth_stream.start()
-    
-    tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
-    if len(points_area) !=  0:
-        points_area = []
-
-    def onMouse1(event, x, y, flags, param):    
-        if event == cv2.EVENT_LBUTTONDOWN:
-            points_area.append(x)
-            points_area.append(y)
-
-    cv2.namedWindow("Selecionar", cv2.WINDOW_AUTOSIZE)
-    cv2.setMouseCallback("Selecionar", onMouse1)  
-    while (True):
-
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-        img.shape = (1, 480, 640)
-
-        img = np.fliplr(img)    
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)
-        img = cv2.convertScaleAbs((img), alpha=0.1) 
-        img = cv2.medianBlur(img, 23)
-        img = equalizeHist(img)
-        img = cv2.bitwise_not(img)
-        img = cv2.rotate(img, cv2.ROTATE_180) 
-        cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
-        if len(points_area) == 4:   
-            if (points_area[0] >= points_area[2]) or (points_area[1] >= points_area[3]):
-                tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
-                points_area = []
-                botao_aplic["state"] = tk.DISABLED
-                botao_exibTR["state"] = tk.DISABLED
-                botao_curv["state"] = tk.DISABLED
-                botao_surface["state"] = tk.DISABLED
-                break
-            else:
-                cframe_data = cframe_data[points_area[1]:points_area[3], points_area[0]: points_area[2]]  
-        cv2.imshow("Selecionar", cframe_data)
-        cv2.waitKey(34)
-        if (cv2.getWindowProperty("Selecionar", cv2.WND_PROP_VISIBLE) <1):
-            if (len(points_area) != 4):
-                tk.messagebox.showinfo("Info", "Calibre a área da caixa")
+            img = np.fliplr(img)    
+            img = np.swapaxes(img, 0, 2)
+            img = np.swapaxes(img, 0, 1)
+            img = cv2.convertScaleAbs((img), alpha=0.1) 
+            img = cv2.medianBlur(img, 23)
+            img = equalizeHist(img)
+            img = cv2.bitwise_not(img)
+            img = cv2.rotate(img, cv2.ROTATE_180) 
+            cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
+            if len(points_area) == 4:   
+                if (points_area[0] >= points_area[2]) or (points_area[1] >= points_area[3]):
+                    tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
+                    points_area = []
+                    botao_aplic["state"] = tk.DISABLED
+                    botao_exibTR["state"] = tk.DISABLED
+                    botao_curv["state"] = tk.DISABLED
+                    botao_surface["state"] = tk.DISABLED
+                    break
+                else:
+                    cframe_data = cframe_data[points_area[1]:points_area[3], points_area[0]: points_area[2]]  
+            cv2.imshow("Selecionar", cframe_data)
+            cv2.waitKey(34)
+            if (cv2.getWindowProperty("Selecionar", cv2.WND_PROP_VISIBLE) <1):
+                if (len(points_area) != 4):
+                    tk.messagebox.showinfo("Info", "Calibre a área da caixa")
+                    points_area = []
+                    botao_aplic["state"] = tk.DISABLED
+                    botao_exibTR["state"] = tk.DISABLED
+                    botao_curv["state"] = tk.DISABLED
+                    botao_surface["state"] = tk.DISABLED
+                    break  
+                elif (found_box  != 0):
+                    botao_aplic["state"] = tk.NORMAL
+                    botao_exibTR["state"] = tk.NORMAL
+                    botao_curv["state"] = tk.NORMAL
+                    botao_surface["state"] = tk.NORMAL
+                    break
+                else:
+                    botao_aplic["state"] = tk.DISABLED
+                    botao_exibTR["state"] = tk.DISABLED
+                    botao_curv["state"] = tk.DISABLED
+                    botao_surface["state"] = tk.DISABLED
+                    break
+            if (closed_cal == True):
                 points_area = []
                 botao_aplic["state"] = tk.DISABLED
                 botao_exibTR["state"] = tk.DISABLED
                 botao_curv["state"] = tk.DISABLED
                 botao_surface["state"] = tk.DISABLED
                 break  
-            elif (found_box  != 0):
-                botao_aplic["state"] = tk.NORMAL
-                botao_exibTR["state"] = tk.NORMAL
-                botao_curv["state"] = tk.NORMAL
-                botao_surface["state"] = tk.NORMAL
-                break
-            else:
-                botao_aplic["state"] = tk.DISABLED
-                botao_exibTR["state"] = tk.DISABLED
-                botao_curv["state"] = tk.DISABLED
-                botao_surface["state"] = tk.DISABLED
-                break
-        if (closed_cal == True):
-            points_area = []
-            botao_aplic["state"] = tk.DISABLED
-            botao_exibTR["state"] = tk.DISABLED
-            botao_curv["state"] = tk.DISABLED
-            botao_surface["state"] = tk.DISABLED
-            break  
-    cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
 #==========================================================================================
     #set reference
 #==========================================================================================
 def set_f():      
     global key_set
-    dev = openni2.Device.open_any()
-    depth_stream = dev.create_depth_stream()
-    depth_stream.start()    
+    try:
+        dev = openni2.Device.open_any()
+        depth_stream= dev.create_depth_stream()
+        depth_stream.start()
+    except:
+        tk.messagebox.showerror("Erro","Conecte o kinect")
+    else:
     
-    if len(key_set) != 0:
-        key_set = []                          
+        if len(key_set) != 0:
+            key_set = []                          
 
-    def onMouse2(event, x, y, flags, param):
-        global found_box   
-        if event == cv2.EVENT_LBUTTONDOWN:
-            found_box  = img_d[y, x]   
-            key_set.append(x)
-            if (type(found_box ) == np.float32) and (np.isnan(found_box )):
-                found_box  = int(np.nan_to_num(found_box ))
-            elif (type(found_box ) == np.float32):
-                found_box  = int(found_box )  
+        def onMouse2(event, x, y, flags, param):
+            global found_box   
+            if event == cv2.EVENT_LBUTTONDOWN:
+                found_box  = img_d[y, x]   
+                key_set.append(x)
+                if (type(found_box ) == np.float32) and (np.isnan(found_box )):
+                    found_box  = int(np.nan_to_num(found_box ))
+                elif (type(found_box ) == np.float32):
+                    found_box  = int(found_box )  
 
-    while(True):
-        frame = depth_stream.read_frame()
-        frame_data = frame.get_buffer_as_uint16()
-        img = np.frombuffer(frame_data, dtype=np.uint16)
-        img.shape = (1, 480, 640)
+        while(True):
+            frame = depth_stream.read_frame()
+            frame_data = frame.get_buffer_as_uint16()
 
-        img_d = np.resize(img, (480, 640))
-        img_d = np.fliplr(img_d)
+            img = np.frombuffer(frame_data, dtype=np.uint16)
+            img.shape = (1, 480, 640)
+            img_d = np.resize(img, (480, 640))
+            img_d = np.fliplr(img_d)
 
-        img = np.fliplr(img)  
-        img = np.swapaxes(img, 0, 2)
-        img = np.swapaxes(img, 0, 1)  
-        img = cv2.convertScaleAbs((img), alpha=0.1) 
-        img = cv2.medianBlur(img, 23)  
-        img = equalizeHist(img)   
-        img = cv2.bitwise_not(img)
-        img = cv2.rotate(img, cv2.ROTATE_180)     
-        im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
+            img = np.fliplr(img)  
+            img = np.swapaxes(img, 0, 2)
+            img = np.swapaxes(img, 0, 1)  
+            img = cv2.convertScaleAbs((img), alpha=0.1) 
+            img = cv2.medianBlur(img, 23)  
+            img = equalizeHist(img)   
+            img = cv2.bitwise_not(img)
+            img = cv2.rotate(img, cv2.ROTATE_180)     
+            im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
 
-        cv2.imshow("Alt", (im_color))   
-        cv2.setMouseCallback("Alt", onMouse2) 
-        cv2.waitKey(34)
+            cv2.imshow("Alt", (im_color))   
+            cv2.setMouseCallback("Alt", onMouse2) 
+            cv2.waitKey(34)
 
-        if (cv2.getWindowProperty("Alt", cv2.WND_PROP_VISIBLE) <1):  
-            tk.messagebox.showinfo("Info", "Selecione distância")
-            botao_aplic["state"] = tk.DISABLED
-            botao_exibTR["state"] = tk.DISABLED
-            botao_curv["state"] = tk.DISABLED
-            botao_surface["state"] = tk.DISABLED
-            break 
-        if  (len(key_set)  != 0):
-            if (len(points_area) == 4):
-                botao_aplic["state"] = tk.NORMAL
-                botao_exibTR["state"] = tk.NORMAL
-                botao_curv["state"] = tk.NORMAL
-                botao_surface["state"] = tk.NORMAL
-                break
-            else:
-                break
-        if (closed_cal == True):
-            botao_aplic["state"] = tk.DISABLED
-            botao_exibTR["state"] = tk.DISABLED
-            botao_curv["state"] = tk.DISABLED
-            botao_surface["state"] = tk.DISABLED
-            break     
-    cv2.destroyAllWindows()    
+            if (cv2.getWindowProperty("Alt", cv2.WND_PROP_VISIBLE) <1):  
+                tk.messagebox.showinfo("Info", "Selecione distância")
+                botao_aplic["state"] = tk.DISABLED
+                botao_exibTR["state"] = tk.DISABLED
+                botao_curv["state"] = tk.DISABLED
+                botao_surface["state"] = tk.DISABLED
+                break 
+            if  (len(key_set)  != 0):
+                if (len(points_area) == 4):
+                    botao_aplic["state"] = tk.NORMAL
+                    botao_exibTR["state"] = tk.NORMAL
+                    botao_curv["state"] = tk.NORMAL
+                    botao_surface["state"] = tk.NORMAL
+                    break
+                else:
+                    break
+            if (closed_cal == True):
+                botao_aplic["state"] = tk.DISABLED
+                botao_exibTR["state"] = tk.DISABLED
+                botao_curv["state"] = tk.DISABLED
+                botao_surface["state"] = tk.DISABLED
+                break     
+        cv2.destroyAllWindows()    
 #==========================================================================================
     #change parameters
 #==========================================================================================
@@ -437,12 +452,13 @@ def fal():
     #set altitude values
 #==========================================================================================        
 def set_alt():
-    global alt_max
-    list_var[5] = True
-    if type(alt_max) == int:
-        alt_max = (set_heigth.get())
-    else:
-        tk.messagebox.showinfo("Digite a distância no formato inteiro, em milímetros")
+    global alt_max   
+    try:
+        list_var[5] = True
+        if type(alt_max) == int:
+            alt_max = (set_heigth.get())
+    except:
+        tk.messagebox.showerror("Erro","Digite a distância no formato inteiro, em milímetros")
 #==========================================================================================
     #quit
 #==========================================================================================
