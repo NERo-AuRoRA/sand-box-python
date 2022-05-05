@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from cv2 import equalizeHist
-import numpy as np
 import cv2
 from openni import openni2
 import matplotlib.pyplot as plt
