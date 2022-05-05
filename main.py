@@ -1,4 +1,3 @@
-from ast import excepthandler
 import tkinter as tk
 from tkinter import ttk
 from cv2 import equalizeHist
@@ -6,9 +5,7 @@ import numpy as np
 import cv2
 from openni import openni2
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 from matplotlib import cm
-from matplotlib.ticker import LinearLocator
 import numpy as np
 import threading
 #==========================================================================================
