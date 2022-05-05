@@ -1,19 +1,13 @@
-from ast import excepthandler
-import tkinter as tk
-from tkinter import ttk
-from cv2 import equalizeHist
-import numpy as np
 import cv2
-from openni import openni2
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator
 import numpy as np
 import threading
+from tkinter import ttk, Tk, IntVar, StringVar, Entry, Scale, messagebox, PhotoImage, DISABLED, NORMAL
+from openni import openni2
+from matplotlib import pyplot as plt, cm
+
 #==========================================================================================
     #create interface
-janela = tk.Tk()
+janela = Tk()
 h = janela.winfo_screenheight()
 w = janela.winfo_screenwidth()
 janela.geometry("%dx%d+%d+%d" % (570, 650, ((w/2) - (570/2)),((h/2) - (680/2))))
@@ -26,15 +20,15 @@ c = 10
 d = 25
 #==========================================================================================
     #variables
-var1 = tk.IntVar()
+var1 = IntVar()
 check2 = ttk.Checkbutton(janela, text='Cores', variable= var1)
 check2.place(height=20, width=100, x=a, y=(c + 7*b))
 
-var2 = tk.IntVar()
+var2 = IntVar()
 check2 = ttk.Checkbutton(janela, text='Curvas', variable= var2)
 check2.place(height=20, width=100, x=6*a + 7, y=(c + 7*b))
 
-selected_gradient = tk.StringVar()
+selected_gradient = StringVar()
 lt =  ['COLORMAP_AUTUMN','COLORMAP_BONE' ,
                        'COLORMAP_JET(PADRÃO)' ,
                        'COLORMAP_WINTER' ,
@@ -61,25 +55,25 @@ gradi.set('Estilo de Colormap')
 gradi['state'] = 'readonly'
 gradi.place(height=20, width=170, x=13*a, y=(c + 7*b))
 
-var3 = tk.IntVar()
+var3 = IntVar()
 list_numbers_curv= [1,3,5,8,10,15,20,30]
 numbers_curv = ttk.Combobox(janela, values = list_numbers_curv, textvariable= var3)
 numbers_curv.set('Fator de Distância')
 numbers_curv['state'] = 'readonly'
 numbers_curv.place(height=20, width=125, x=31*a - 8, y=(c + 7*b))
 
-var4 = tk.IntVar()
+var4 = IntVar()
 list_thickness_curv = [1,2,3,4,5,6,7,8]
 thickness_curv = ttk.Combobox(janela, values =list_thickness_curv, textvariable= var4)
 thickness_curv.set('Espessura da Linha')
 thickness_curv['state'] = 'readonly'
 thickness_curv.place(height=20, width=125, x=42*a + 9 , y=(c + 7*b))
 
-set_heigth = tk.IntVar()
-set_entry = tk.Entry(janela,textvariable = set_heigth)
+set_heigth = IntVar()
+set_entry = Entry(janela,textvariable = set_heigth)
 set_entry.place(height=20, width=50, x=15*a, y=(c + 3*b))
 
-var_a = tk.IntVar()
+var_a = IntVar()
 check_a = ttk.Checkbutton(janela, text='Exibir Altura', variable= var_a)
 check_a.place(height=20, width=150, x=a, y=(c + 4*b))
 #==========================================================================================
@@ -108,7 +102,7 @@ def exibe_curvas_de_nivel():
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
     except:
-        tk.messagebox.showerror("Erro","Conecte o kinect")
+        messagebox.showerror("Erro","Conecte o kinect")
     else:
         img = np.frombuffer(frame_data, dtype=np.uint16)
         n_curvas_de_nivel=30
@@ -147,7 +141,7 @@ def exibe_3d():
         frame = depth_stream.read_frame()
         frame_data = frame.get_buffer_as_uint16()
     except:
-        tk.messagebox.showerror("Erro","Conecte o kinect")  
+        messagebox.showerror("Erro","Conecte o kinect")
     else:
         img = np.frombuffer(frame_data, dtype=np.uint16)
         
@@ -193,12 +187,12 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
         depth_stream = dev.create_depth_stream()
         depth_stream.start()
     except:
-        tk.messagebox.showerror("Erro","Conecte o kinect")
+        messagebox.showerror("Erro","Conecte o kinect")
     else:
 
-        botao_exibTR["state"] = tk.DISABLED
-        botao_calibration1["state"] = tk.DISABLED
-        botao_calibration2["state"] = tk.DISABLED
+        botao_exibTR["state"] = DISABLED
+        botao_calibration1["state"] = DISABLED
+        botao_calibration2["state"] = DISABLED
 
         def onMouse2(event, x, y, flags, param):
             global dist    
@@ -232,10 +226,10 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
 
             alpha = 255 / ((np.amax(img) - np.amin(img)))
             beta = -np.amin(img) * alpha
-            img = cv2.convertScaleAbs((img), alpha=alpha, beta = beta) 
-            img = cv2.medianBlur(img, 19)   
-            img = cv2.rotate(img, cv2.ROTATE_180)       
-            im_color = cv2.applyColorMap(img, mapoption) 
+            img = cv2.convertScaleAbs((img), alpha=alpha, beta = beta)
+            img = cv2.medianBlur(img, 19)
+            img = cv2.rotate(img, cv2.ROTATE_180)
+            im_color = cv2.applyColorMap(img, mapoption)
             im_position = im_color 
             
             x = v1.get()
@@ -273,9 +267,9 @@ def exib_TR(mapoption = list_var[0], walloption= list_var[1], curv = list_var[2]
                 texto_view_alt["text"] = "" 
             if (cv2.getWindowProperty("Tempo Real", cv2.WND_PROP_VISIBLE) <1) or (list_var[5] == True):  
                 texto_view_alt["text"] = "" 
-                botao_exibTR["state"] = tk.NORMAL
-                botao_calibration1["state"] = tk.NORMAL
-                botao_calibration2["state"] = tk.NORMAL
+                botao_exibTR["state"] = NORMAL
+                botao_calibration1["state"] = NORMAL
+                botao_calibration2["state"] = NORMAL
                 list_var[5] = False   
                 break      
         cv2.destroyAllWindows()    
@@ -289,9 +283,9 @@ def cal_inicial():
         depth_stream= dev.create_depth_stream()
         depth_stream.start()
     except:
-        tk.messagebox.showerror("Erro","Conecte o kinect")
+        messagebox.showerror("Erro","Conecte o kinect")
     else:
-        tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
+        messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
         if len(points_area) !=  0:
             points_area = []
         def onMouse1(event, x, y, flags, param):    
@@ -311,18 +305,18 @@ def cal_inicial():
             img = np.swapaxes(img, 0, 1)
             img = cv2.convertScaleAbs((img), alpha=0.1) 
             img = cv2.medianBlur(img, 23)
-            img = equalizeHist(img)
+            img = cv2.equalizeHist(img)
             img = cv2.bitwise_not(img)
             img = cv2.rotate(img, cv2.ROTATE_180) 
             cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
             if len(points_area) == 4:   
                 if (points_area[0] >= points_area[2]) or (points_area[1] >= points_area[3]):
-                    tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
+                    messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
                     points_area = []
-                    botao_aplic["state"] = tk.DISABLED
-                    botao_exibTR["state"] = tk.DISABLED
-                    botao_curv["state"] = tk.DISABLED
-                    botao_surface["state"] = tk.DISABLED
+                    botao_aplic["state"] = DISABLED
+                    botao_exibTR["state"] = DISABLED
+                    botao_curv["state"] = DISABLED
+                    botao_surface["state"] = DISABLED
                     break
                 else:
                     cframe_data = cframe_data[points_area[1]:points_area[3], points_area[0]: points_area[2]]  
@@ -330,31 +324,31 @@ def cal_inicial():
             cv2.waitKey(34)
             if (cv2.getWindowProperty("Selecionar", cv2.WND_PROP_VISIBLE) <1):
                 if (len(points_area) != 4):
-                    tk.messagebox.showinfo("Info", "Calibre a área da caixa")
+                    messagebox.showinfo("Info", "Calibre a área da caixa")
                     points_area = []
-                    botao_aplic["state"] = tk.DISABLED
-                    botao_exibTR["state"] = tk.DISABLED
-                    botao_curv["state"] = tk.DISABLED
-                    botao_surface["state"] = tk.DISABLED
+                    botao_aplic["state"] = DISABLED
+                    botao_exibTR["state"] = DISABLED
+                    botao_curv["state"] = DISABLED
+                    botao_surface["state"] = DISABLED
                     break  
                 elif (found_box  != 0):
-                    botao_aplic["state"] = tk.NORMAL
-                    botao_exibTR["state"] = tk.NORMAL
-                    botao_curv["state"] = tk.NORMAL
-                    botao_surface["state"] = tk.NORMAL
+                    botao_aplic["state"] = NORMAL
+                    botao_exibTR["state"] = NORMAL
+                    botao_curv["state"] = NORMAL
+                    botao_surface["state"] = NORMAL
                     break
                 else:
-                    botao_aplic["state"] = tk.DISABLED
-                    botao_exibTR["state"] = tk.DISABLED
-                    botao_curv["state"] = tk.DISABLED
-                    botao_surface["state"] = tk.DISABLED
+                    botao_aplic["state"] = DISABLED
+                    botao_exibTR["state"] = DISABLED
+                    botao_curv["state"] = DISABLED
+                    botao_surface["state"] = DISABLED
                     break
             if (closed_cal == True):
                 points_area = []
-                botao_aplic["state"] = tk.DISABLED
-                botao_exibTR["state"] = tk.DISABLED
-                botao_curv["state"] = tk.DISABLED
-                botao_surface["state"] = tk.DISABLED
+                botao_aplic["state"] = DISABLED
+                botao_exibTR["state"] = DISABLED
+                botao_curv["state"] = DISABLED
+                botao_surface["state"] = DISABLED
                 break  
         cv2.destroyAllWindows()
 #==========================================================================================
@@ -367,7 +361,7 @@ def set_f():
         depth_stream= dev.create_depth_stream()
         depth_stream.start()
     except:
-        tk.messagebox.showerror("Erro","Conecte o kinect")
+        messagebox.showerror("Erro","Conecte o kinect")
     else:
     
         if len(key_set) != 0:
@@ -397,7 +391,7 @@ def set_f():
             img = np.swapaxes(img, 0, 1)  
             img = cv2.convertScaleAbs((img), alpha=0.1) 
             img = cv2.medianBlur(img, 23)  
-            img = equalizeHist(img)   
+            img = cv2.equalizeHist(img)
             img = cv2.bitwise_not(img)
             img = cv2.rotate(img, cv2.ROTATE_180)     
             im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
@@ -407,26 +401,26 @@ def set_f():
             cv2.waitKey(34)
 
             if (cv2.getWindowProperty("Alt", cv2.WND_PROP_VISIBLE) <1):  
-                tk.messagebox.showinfo("Info", "Selecione distância")
-                botao_aplic["state"] = tk.DISABLED
-                botao_exibTR["state"] = tk.DISABLED
-                botao_curv["state"] = tk.DISABLED
-                botao_surface["state"] = tk.DISABLED
+                messagebox.showinfo("Info", "Selecione distância")
+                botao_aplic["state"] = DISABLED
+                botao_exibTR["state"] = DISABLED
+                botao_curv["state"] = DISABLED
+                botao_surface["state"] = DISABLED
                 break 
             if  (len(key_set)  != 0):
                 if (len(points_area) == 4):
-                    botao_aplic["state"] = tk.NORMAL
-                    botao_exibTR["state"] = tk.NORMAL
-                    botao_curv["state"] = tk.NORMAL
-                    botao_surface["state"] = tk.NORMAL
+                    botao_aplic["state"] = NORMAL
+                    botao_exibTR["state"] = NORMAL
+                    botao_curv["state"] = NORMAL
+                    botao_surface["state"] = NORMAL
                     break
                 else:
                     break
             if (closed_cal == True):
-                botao_aplic["state"] = tk.DISABLED
-                botao_exibTR["state"] = tk.DISABLED
-                botao_curv["state"] = tk.DISABLED
-                botao_surface["state"] = tk.DISABLED
+                botao_aplic["state"] = DISABLED
+                botao_exibTR["state"] = DISABLED
+                botao_curv["state"] = DISABLED
+                botao_surface["state"] = DISABLED
                 break     
         cv2.destroyAllWindows()    
 #==========================================================================================
@@ -436,10 +430,10 @@ def maplic():
     global list_var
     if ((thickness_curv.current() != -1) and (numbers_curv.current() != -1) and (gradi.current() != -1)):
         list_var = [gradi.current(),var1.get(),var2.get(),var3.get(),var4.get(), True]
-        botao_exibTR["state"] = tk.NORMAL
+        botao_exibTR["state"] = NORMAL
         texto_change.place(height=25, width=300, x=22*a, y=(c + 8*b))
     else:
-        tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
+        messagebox.showerror("Erro", "Defina todos os paramêtros")
 #==========================================================================================
     #preview permissions
 #==========================================================================================
@@ -447,7 +441,7 @@ def fal():
     texto_change.place_forget()
     list_var[5] = False
     if list_var == [2, 1, 1, 5, 1, False]:
-        tk.messagebox.showinfo("Info", "Parâmetros padrão executados")   
+        messagebox.showinfo("Info", "Parâmetros padrão executados")
 #==========================================================================================
     #set altitude values
 #==========================================================================================        
@@ -458,7 +452,7 @@ def set_alt():
         if type(alt_max) == int:
             alt_max = (set_heigth.get())
     except:
-        tk.messagebox.showerror("Erro","Digite a distância no formato inteiro, em milímetros")
+        messagebox.showerror("Erro","Digite a distância no formato inteiro, em milímetros")
 #==========================================================================================
     #quit
 #==========================================================================================
@@ -467,7 +461,7 @@ def quit_sand():
     list_var[5] = True
     closed_cal = True
 
-    if tk.messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
+    if messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
         janela.destroy()
     else:
         list_var[5] = False
@@ -490,36 +484,36 @@ sep5 =ttk.Separator(janela, orient='horizontal')
 sep5.place(x=0, y=(d + 19*b), relwidth=1)
 #==========================================================================================
     #scales
-v1 = tk.IntVar()
+v1 = IntVar()
 s1 = ttk.Scale( janela, variable = v1, 
            from_ = 1, to = w, 
            orient = "horizontal") 
 s1.set(w/2)
 s1.place(height=20, width=400, x=a, y=(c + 11*b))
 
-v2 = tk.IntVar()
+v2 = IntVar()
 s2 = ttk.Scale( janela, variable = v2, 
            from_ = 1, to = h, 
            orient = "horizontal") 
 s2.set(h/2)
 s2.place(height=20, width=400, x=a, y=(c + 12*b))
 
-v4 = tk.IntVar()
+v4 = IntVar()
 s4 = ttk.Scale( janela, variable = v4, 
            from_ = 0, to = w, 
            orient = "horizontal") 
 s4.set(w/2)
 s4.place(height=20, width=400, x=a, y=(c + 13*b))
 
-v5 = tk.IntVar()
+v5 = IntVar()
 s5 = ttk.Scale( janela, variable = v5, 
            from_ = 0, to = h, 
            orient = "horizontal") 
 s5.set(h/2)
 s5.place(height=20, width=400, x=a, y=(c + 14*b))
 
-v3 = tk.IntVar()
-s3 = ttk.Scale( janela, variable = v3, 
+v3 = IntVar()
+s3 = Scale( janela, variable = v3,
            from_ = -180, to = 180, 
            orient = "horizontal") 
 s3.set(0)
@@ -580,26 +574,26 @@ botao_set_top .place(height=22, width=75, x=21*a, y=(c + 3*b))
 botao_exibTR = ttk.Button(janela, text="Exibir", command= lambda:[fal(), threading.Thread(target=exib_TR, args= (list_var[0],list_var[1],
                                        list_var[2],list_var[3],list_var[4], h, w, found_box, alt_max)).start()])                             
 botao_exibTR.place(height=25, width=100, x=a, y=(c + 8*b))
-botao_exibTR["state"] = tk.DISABLED
+botao_exibTR["state"] = DISABLED
 
 botao_aplic = ttk.Button(janela, text="Aplicar", command= lambda: maplic())                                 
 botao_aplic.place(height=25, width=100, x=11*a, y=(c + 8*b))
-botao_aplic["state"] = tk.DISABLED
+botao_aplic["state"] = DISABLED
 
 botao_curv = ttk.Button(janela, text="Exibir Curvas", command= lambda: exibe_curvas_de_nivel())
 botao_curv.place(height=25, width=100,x=a, y=(c + 18*b))
-botao_curv["state"] = tk.DISABLED
+botao_curv["state"] = DISABLED
 
 botao_surface = ttk.Button(janela, text="Exibir Superfície", command= lambda: exibe_3d())
 botao_surface.place(height=25, width=100, x=11*a, y=(c + 18*b))
-botao_surface["state"] = tk.DISABLED
+botao_surface["state"] = DISABLED
 
 botao_exit = ttk.Button(janela, text="Sair", command= lambda: quit_sand())
 botao_exit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
 #==========================================================================================
     #image
 
-imagem = tk.PhotoImage(file="Nero_Preto_SemFundo.PNG")
+imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
 imagem = imagem.subsample(8, 8) 
 im = ttk.Label(janela, image=imagem)
 im.place(height=25, width=110, x=a, y=(10 + 20*b))
