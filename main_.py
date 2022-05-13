@@ -13,9 +13,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
 import threading
-#from menu_de_calibracao import*
-
-#from Camera_Funcs import*
 
 class win_sand(object):
     def __init__(self, **kw):
@@ -608,19 +605,5 @@ class win_sand(object):
         else:
             self.list_var[5] = False
             self.closed_cal = False     
-    def execute(self):
-        self.janela.protocol("WM_DELETE_WINDOW", self.janela.destroy)
-        self.janela.mainloop()
 
-        
 
-#Colocar isto no programa principal 
-
-def main(args):
-    app_proc = win_sand()
-    app_proc.execute()
-
- 
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
