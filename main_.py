@@ -17,7 +17,7 @@ import threading
 class win_sand(object):
     def __init__(self, **kw):
         #insira toda a inicialização aqui                          
-        self.janela = tk.Toplevel()
+        self.janela = Toplevel()
         self.janela.title("SANDBOX")
         self.h = self.janela.winfo_screenheight()
         self.w = self.janela.winfo_screenwidth()
@@ -37,6 +37,7 @@ class win_sand(object):
         self.list_var = [2, 1, 1, 5, 1, False]
         self.points_area = []
         self.closed_cal = False 
+        openni2.initialize()
 
     def create_variables(self):
         a = 10
@@ -155,7 +156,7 @@ class win_sand(object):
         botao_set_top = Button(self.janela, text="Set", command= lambda: self.set_alt())
         botao_set_top .place(height=22, width=75, x=21*a, y=(c + 3*b))
 
-        self.botao_exibTR = Button(self.janela, text="Exibir", command= lambda:[self.fal(), threading.Thread(target=self.exib_TR, args= (self, self.list_var[0],self.list_var[1],
+        self.botao_exibTR = Button(self.janela, text="Exibir", command= lambda:[self.fal(), threading.Thread(target=self.exib_TR, args= (self.list_var[0],self.list_var[1],
                         self.list_var[2],self.list_var[3],self.list_var[4], self.h, self.w, self.found_box, self.alt_max)).start()])                             
         self.botao_exibTR.place(height=25, width=100, x=a, y=(c + 8*b))
         self.botao_exibTR["state"] = tk.DISABLED
@@ -424,7 +425,7 @@ class win_sand(object):
                     self.botao_calibration2["state"] = tk.NORMAL
                     self.list_var[5] = False   
                     break      
-            cv2.destroyAllWindows(self)    
+            cv2.destroyAllWindows()    
     def cal_inicial(self): 
         try:
             dev = openni2.Device.open_any()
@@ -457,10 +458,10 @@ class win_sand(object):
                 img = cv2.bitwise_not(img)
                 img = cv2.rotate(img, cv2.ROTATE_180) 
                 cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
-                if len(points_area) == 4:   
-                    if (points_area[0] >= points_area[2]) or (points_area[1] >= points_area[3]):
+                if len(self.points_area) == 4:   
+                    if (self.points_area[0] >= self.points_area[2]) or (self.points_area[1] >= self.points_area[3]):
                         tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
-                        points_area = []
+                        self.points_area = []
                         self.botao_aplic["state"] = tk.DISABLED
                         self.botao_exibTR["state"] = tk.DISABLED
                         self.botao_curv["state"] = tk.DISABLED
@@ -471,9 +472,9 @@ class win_sand(object):
                 cv2.imshow("Selecionar", cframe_data)
                 cv2.waitKey(34)
                 if (cv2.getWindowProperty("Selecionar", cv2.WND_PROP_VISIBLE) <1):
-                    if (len(points_area) != 4):
+                    if (len(self.points_area) != 4):
                         tk.messagebox.showinfo("Info", "Calibre a área da caixa")
-                        points_area = []
+                        self.points_area = []
                         self.botao_aplic["state"] = tk.DISABLED
                         self.botao_exibTR["state"] = tk.DISABLED
                         self.botao_curv["state"] = tk.DISABLED
@@ -575,7 +576,7 @@ class win_sand(object):
         c = 10
         d = 25
         if ((self.thickness_curv.current() != -1) and (self.numbers_curv.current() != -1) and (self.gradi.current() != -1)):
-            list_var = [self.gradi.current(),self.var1.get(),self.var2.get(),self.var3.get(),self.var4.get(), True]
+            self.list_var = [self.gradi.current(),self.var1.get(),self.var2.get(),self.var3.get(),self.var4.get(), True]
             self.botao_exibTR["state"] = tk.NORMAL
             self.texto_change.place(height=25, width=300, x=22*a, y=(c + 8*b))
         else:
@@ -605,5 +606,3 @@ class win_sand(object):
         else:
             self.list_var[5] = False
             self.closed_cal = False     
-
-
