@@ -37,8 +37,9 @@ class win_sand(object):
         self.list_var = [2, 1, 1, 5, 1, False]
         self.points_area = []
         self.closed_cal = False 
+        
         openni2.initialize()
-
+        self.janela.protocol("WM_DELETE_WINDOW", self.quit_sand)
     def create_variables(self):
         a = 10
         b = 30
