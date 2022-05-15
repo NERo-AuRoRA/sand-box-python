@@ -1,9 +1,7 @@
 #                           PLATAFORMA SANDBOX 3/3 2022
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
-from tkinter import*
-import sys
-from tkinter.scrolledtext import ScrolledText
+from tkinter import Toplevel, scrolledtext, INSERT
 
 class sob(object):
     def __init__(self, **kw):                    
@@ -16,7 +14,7 @@ class sob(object):
        
         
     def create_text(self):
-        atex = ScrolledText(self.sob,width = 90, 
+        atex = scrolledtext.ScrolledText(self.sob,width = 90,
                             height = 20, 
                             font = ("Times New Roman",
                                     15,))

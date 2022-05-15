@@ -1,10 +1,10 @@
 #                           PLATAFORMA SANDBOX 1/3 2022
 #
-# Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
-from tkinter import*
+# Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica.
 import sys
-from main_ import*
-from sobre import*
+from main_ import *
+from sobre import *
+from tkinter import Tk, Button, PhotoImage, Label
 
 class myApp(object):
     def __init__(self, **kw):                    
