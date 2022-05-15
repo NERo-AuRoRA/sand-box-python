@@ -22,26 +22,8 @@ class sob(object):
                                     15,))
         atex.grid(column = 0, pady = 10, padx = 10)
         atex.insert(INSERT,
-                                    """\
-            This is a scrolledtext widget to make tkinter text read only.
-                                    Hi
-                                    Geeks !!!
-                                    Geeks !!!
-                                    Geeks !!! 
-                                    Geeks !!!
-
-
-
-
-
-
-
-
-
-
-                escreva o texto                    
-                                    Geeks !!!
-                                    Geeks !!!
-                                    Geeks !!!
-                                    """)
+"""
+O aplicativo desktop SandBox é uma ferramenta utilizada na criação de práticas e atividades interativas para alunos de Ensino Fundamental e Médio da disciplina de Geografia na criação de relevos e na visualização do mapa de relevo correspondente em tempo real, além de possibilitar interações diversas com as imagens criadas.
+"""
+                    )
         atex.configure(state ='disabled') 
