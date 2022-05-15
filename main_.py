@@ -1,4 +1,4 @@
-#                           PLATAFORMA SANDBOX 2/2 2022
+#                           PLATAFORMA SANDBOX 2/3 2022
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
 
@@ -15,15 +15,13 @@ import numpy as np
 import threading
 
 class win_sand(object):
-    def __init__(self, **kw):
-        #insira toda a inicialização aqui                          
+    def __init__(self, **kw):                        
         self.janela = Toplevel()
         self.janela.title("SANDBOX")
         self.h = self.janela.winfo_screenheight()
         self.w = self.janela.winfo_screenwidth()
         self.janela.geometry("%dx%d+%d+%d" % (570, 650, ((self.w/2) - (570/2)),((self.h/2) - (680/2))))
         self.janela.resizable(width=0, height=0)
-        #self.janela.configure(bg='white')
         self.create_menu_button() 
         self.create_sep() 
         self.create_text() 
@@ -594,7 +592,6 @@ class win_sand(object):
             self.list_var[5] = True
             if type(self.alt_max) == int:
                 self.alt_max = (self.set_heigth.get())
-                print(self.alt_max)
         except:
             tk.messagebox.showerror("Erro","Digite a distância no formato inteiro, em milímetros")   
 
