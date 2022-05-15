@@ -5,7 +5,7 @@
 import numpy as np
 import threading
 import cv2
-from tkinter import ttk, IntVar, StringVar, Button, messagebox, Toplevel, DISABLED, NORMAL
+from tkinter import ttk, IntVar, StringVar, Button, PhotoImage, Label, messagebox, Toplevel, DISABLED, NORMAL
 from openni import openni2
 from matplotlib import pyplot as plt, cm
 
