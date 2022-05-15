@@ -1,63 +1,53 @@
-
-import tkinter as tk
-from tkinter import ttk
-
-import numpy as np
 import cv2
-from openni import openni2
-
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator
 import numpy as np
-
 import threading
+from tkinter import ttk, Tk, IntVar, Scale, Button
 
-janela = tk.Tk()
+
+janela = Tk()
 janela.geometry("700x300")
 janela.title("Interface em desenvolvimento")
 
 h = janela.winfo_screenheight()
 w = janela.winfo_screenwidth()
 
-v1 = tk.IntVar()
-s1 = ttk.Scale( janela, variable = v1, 
+v1 = IntVar()
+s1 = Scale( janela, variable = v1,
            from_ = 1, to = 800, 
            orient = "horizontal") 
 s1.set(400)
 s1.pack(anchor = "center") 
 
 
-v2 = tk.IntVar()
-s2 = ttk.Scale( janela, variable = v2, 
+v2 = IntVar()
+s2 = Scale( janela, variable = v2,
            from_ = 1, to = 800, 
            orient = "horizontal") 
 s2.set(400)
 s2.pack(anchor = "center") 
 
-v3 = tk.IntVar()
-s3 = ttk.Scale( janela, variable = v3, 
+v3 = IntVar()
+s3 = Scale( janela, variable = v3,
            from_ = -180, to = 180, 
            orient = "horizontal") 
 s3.set(0)
 s3.pack(anchor = "center") 
 
-v4 = tk.IntVar()
-s4 = ttk.Scale( janela, variable = v4, 
+v4 = IntVar()
+s4 = Scale( janela, variable = v4,
            from_ = -180, to = 180, 
            orient = "horizontal") 
 s4.set(0)
 s4.pack(anchor = "center") 
 
-v5 = tk.IntVar()
-s5 = ttk.Scale( janela, variable = v5, 
+v5 = IntVar()
+s5 = Scale( janela, variable = v5,
            from_ = -180, to = 180, 
            orient = "horizontal") 
 s5.set(0)
 s5.pack(anchor = "center") 
 
-botao4 = ttk.Button(janela, text="Aplicar", command= lambda: threading.Thread(target=f, args= (h, w)).start())                                 
+botao4 = Button(janela, text="Aplicar", command= lambda: threading.Thread(target=f, args= (h, w)).start())
 botao4.pack()
                            
 

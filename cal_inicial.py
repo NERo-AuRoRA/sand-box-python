@@ -1,22 +1,10 @@
-#==========================================================================================
-
-import tkinter as tk
-from tkinter import ttk
-from cv2 import destroyAllWindows
-
 import numpy as np
+import threading
 import cv2
+from tkinter import Tk, Button, messagebox
 from openni import openni2
 
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator
-import numpy as np
-
-import threading
-
-janela = tk.Tk()
+janela = Tk()
 janela.geometry("700x300")
 janela.title("Interface em desenvolvimento")
 
@@ -29,7 +17,7 @@ pts = []
 
 def cal_inicial():
     global pts
-    tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
+    messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
     if len(pts) !=  0:
         pts = []
     openni2.initialize()
@@ -62,7 +50,7 @@ def cal_inicial():
         cv2.waitKey(34)
         if (cv2.getWindowProperty("Canvas", cv2.WND_PROP_VISIBLE) <1):
             if (len(pts) != 4):
-                tk.messagebox.showinfo("Info", "calibre a área da caixa")
+                messagebox.showinfo("Info", "calibre a área da caixa")
                 pts = []
                 break
         
@@ -70,17 +58,17 @@ def cal_inicial():
             
         if (len(pts) == 4) :
             if (pts[0] >= pts[2]) or (pts[1] >= pts[3]):
-                tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
+                messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
                 pts = []
                 break
             else:
                 break
-    destroyAllWindows()
+    cv2.destroyAllWindows()
 
 
 
 
-botao4 = ttk.Button(janela, text="Aplicar", command= lambda: threading.Thread(target=cal_inicial()).start())                                 
+botao4 = Button(janela, text="Aplicar", command= lambda: threading.Thread(target=cal_inicial()).start())
 botao4.pack()
 
 janela.mainloop()
