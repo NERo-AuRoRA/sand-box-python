@@ -15,6 +15,14 @@ import numpy as np
 import threading
 
 class win_sand(object):
+    trclosed_cal = False
+    alt_max = 0
+    dist = 0
+    found_box  = 0
+    key_set = []
+    list_var = [2, 1, 1, 5, 1, False]
+    points_area = []
+    closed_cal = False 
     def __init__(self, **kw):                        
         self.janela = Toplevel()
         self.janela.title("SANDBOX")
@@ -28,13 +36,6 @@ class win_sand(object):
         self.create_scales()
         self.create_variables()
         self.image()
-        self.alt_max = 0
-        self.dist = 0
-        self.found_box  = 0
-        self.key_set = []
-        self.list_var = [2, 1, 1, 5, 1, False]
-        self.points_area = []
-        self.closed_cal = False 
         
         openni2.initialize()
         self.janela.protocol("WM_DELETE_WINDOW", self.quit_sand)
@@ -172,7 +173,7 @@ class win_sand(object):
         self.botao_surface.place(height=25, width=100, x=11*a, y=(c + 18*b))
         self.botao_surface["state"] = tk.DISABLED
 
-        botao_exit = Button(self.janela, text="Sair", command= lambda: self.quit_sand())
+        botao_exit = Button(self.janela, text="Sair", command= lambda: print(self.quit_sand()))
         botao_exit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
    
     def create_sep(self):
@@ -347,13 +348,12 @@ class win_sand(object):
             self.botao_calibration2["state"] = tk.DISABLED
 
             def onMouse2(event, x, y, flags, param):
-                global dist    
                 if event == cv2.EVENT_MOUSEMOVE:
-                    dist = img_d[y, x]            
-                    if (type(dist) == np.float32) and (np.isnan(dist)):
-                        dist = int(np.nan_to_num(dist))
-                    elif (type(dist) == np.float32):
-                        dist = int(dist)  
+                    self.dist = img_d[y, x]            
+                    if (type(self.dist) == np.float32) and (np.isnan(self.dist)):
+                        self.dist = int(np.nan_to_num(self.dist))
+                    elif (type(self.dist) == np.float32):
+                        self.dist = int(self.dist)  
 
             while(True):
                 frame = depth_stream.read_frame()
@@ -408,7 +408,7 @@ class win_sand(object):
                 if (self.var_a.get() == 1):
                     cv2.imshow("Altitude", im_position)
                     cv2.setMouseCallback("Altitude", onMouse2) 
-                    self.texto_view_alt["text"] = "(Mova o Cursor Sobre a Imagem): " + str(dist) + " mm"
+                    self.texto_view_alt["text"] = "(Mova o Cursor Sobre a Imagem): " + str(self.dist) + " mm"
                 cv2.waitKey(34)  
             
                 if (cv2.getWindowProperty("Altitude", cv2.WND_PROP_VISIBLE) <1) and (self.var_a.get() == 1):
@@ -512,8 +512,7 @@ class win_sand(object):
             if len(self.key_set) != 0:
                 self.key_set = []                          
 
-            def onMouse2(event, x, y, flags, param):
-                global found_box   
+            def onMouse2(event, x, y, flags, param):   
                 if event == cv2.EVENT_LBUTTONDOWN:
                     self.found_box  = img_d[y, x]   
                     self.key_set.append(x)
@@ -604,3 +603,5 @@ class win_sand(object):
         else:
             self.list_var[5] = False
             self.closed_cal = False     
+
+     

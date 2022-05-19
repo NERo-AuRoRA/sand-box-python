@@ -15,7 +15,7 @@ class myApp(object):
         self.root.resizable(width=0, height=0)
         self.create_menu_button()   
         self.image()
-        
+        self.root.protocol("WM_DELETE_WINDOW", self.rar)
     def create_menu_button(self):
         avan = Button(self.root, text= "Avançar",command= lambda: win_sand())
         avan.place(height=30, width=100, x=50, y=70)
