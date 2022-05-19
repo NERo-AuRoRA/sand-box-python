@@ -5,7 +5,7 @@
 import numpy as np
 import threading
 import cv2
-from tkinter import ttk, IntVar, StringVar, Button, PhotoImage, Label, messagebox, Toplevel, DISABLED, NORMAL
+from tkinter import ttk, IntVar, StringVar, Button, PhotoImage, Label, Entry, Checkbutton, messagebox, Toplevel, DISABLED, NORMAL
 from openni import openni2
 from matplotlib import pyplot as plt, cm
 
@@ -24,7 +24,7 @@ class win_sand(object):
         self.create_text() 
         self.create_scales()
         self.create_variables()
-        self.image()
+        # self.image()
         self.alt_max = 0
         self.dist = 0
         self.found_box  = 0
@@ -234,16 +234,8 @@ class win_sand(object):
 
         self.texto_view_alt = ttk.Label(self.janela, text="")
         self.texto_view_alt.place(height=20, width=280, x=10*a, y=(c + 4*b))
-      
-    def image(self):
-        a = 10
-        b = 30
-        self.imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
-        self.imagem = self.imagem.subsample(8, 8) 
-        im = Label(self.janela, image=self.imagem)
-        im.place(height=25, width=110, x=a, y=(10 + 20*b))  
-        #im.configure(bg = "white")
-    
+
+
     def exibe_curvas_de_nivel(self):
         """
         Função para definir a exibição das curvas de nível na imagem.
