@@ -25,10 +25,17 @@ class myApp(object):
         sobre.place(height=30, width=100, x=150, y=70) 
         sobre.configure(bg = "white")
 
-        sair = Button(self.root, text= "Sair",command= lambda: self.root.destroy())
+        sair = Button(self.root, text= "Sair",command= lambda: self.rar())
         sair.place(height=25, width=75, x=200, y=460)   
         sair.configure(bg = "white")
-
+    def rar(self):
+        win_sand.list_var[5] = True
+        win_sand.closed_cal = True
+        if tk.messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
+            self.root.destroy()
+        else:
+            win_sand.list_var[5] = False
+            win_sand.closed_cal = False  
     def image(self):
         self.imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
         self.imagem = self.imagem.subsample(5,5) 
