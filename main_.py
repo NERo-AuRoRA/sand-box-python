@@ -15,7 +15,6 @@ import numpy as np
 import threading
 
 class win_sand(object):
-    trclosed_cal = False
     alt_max = 0
     dist = 0
     found_box  = 0
