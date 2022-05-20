@@ -268,8 +268,9 @@ class win_sand(object):
             x_label, y_label = np.meshgrid(x_label, y_label)
         
             z_label = np.reshape(img, (480, 640))
-            z_label =  z_label[(self.points_area[1]):(self.points_area[3]), (self.points_area[0]):(self.points_area[2])]
             z_label = np.rot90(z_label, 2)
+            z_label =  z_label[(480 - self.points_area[3]):(480 - self.points_area[1]), (self.points_area[0]):(self.points_area[2])]
+            
 
             if self.alt_max == 0:
                 z_label = np.clip(z_label,(self.found_box - 400), (self.found_box))
@@ -305,8 +306,9 @@ class win_sand(object):
             x_label, y_label = np.meshgrid(x_label, y_label)
 
             z_label = np.reshape(img, (480, 640))
-            z_label =  z_label[(self.points_area[1]):(self.points_area[3]), (self.points_area[0]):(self.points_area[2])]
-
+            z_label = np.rot90(z_label, 2)
+            z_label =  z_label[(480 - self.points_area[3]):(480 - self.points_area[1]), (self.points_area[0]):(self.points_area[2])]
+            
             if self.alt_max == 0:
                 z_label = np.clip(z_label,(self.found_box - 400), (self.found_box))
             else:
@@ -602,6 +604,4 @@ class win_sand(object):
             self.janela.destroy()
         else:
             self.list_var[5] = False
-            self.closed_cal = False     
-
-     
+            self.closed_cal = False 
