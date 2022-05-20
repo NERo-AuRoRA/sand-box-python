@@ -1,8 +1,7 @@
 #                           PLATAFORMA SANDBOX 1/3 2022
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
-from tkinter import*
-import sys
+from tkinter import Tk, Button, messagebox, Label, PhotoImage
 from main_ import*
 from sobre import*
 
@@ -31,7 +30,7 @@ class myApp(object):
     def rar(self):
         win_sand.list_var[5] = True
         win_sand.closed_cal = True
-        if tk.messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
+        if messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
             self.root.destroy()
         else:
             win_sand.list_var[5] = False

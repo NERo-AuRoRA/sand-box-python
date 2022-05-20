@@ -1,18 +1,14 @@
 #                           PLATAFORMA SANDBOX 2/3 2022
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
-
-from tkinter import*
 import sys
-import tkinter as tk
-from tkinter import ttk
-from cv2 import equalizeHist
 import cv2
-from openni import openni2
-import matplotlib.pyplot as plt
-from matplotlib import cm
 import numpy as np
 import threading
+from tkinter import IntVar, Toplevel, Checkbutton, Entry, Button, StringVar, PhotoImage, Label, ttk, messagebox, DISABLED, NORMAL
+from openni import openni2
+from matplotlib import pyplot as plt, cm
+
 
 class win_sand(object):
     trclosed_cal = False
@@ -45,15 +41,15 @@ class win_sand(object):
         c = 10
         d = 25
 
-        self.var1 = tk.IntVar()
+        self.var1 = IntVar()
         self.check2 = Checkbutton(self.janela, text='Cores', variable= self.var1)
         self.check2.place(height=20, width=60, x=a, y=(c + 7*b))
 
-        self.var2 = tk.IntVar()
+        self.var2 = IntVar()
         self.check2 = Checkbutton(self.janela, text='Curvas', variable= self.var2)
         self.check2.place(height=20, width=60, x=6*a + 7, y=(c + 7*b))
 
-        self.selected_gradient = tk.StringVar()
+        self.selected_gradient = StringVar()
         lt =  ['COLORMAP_AUTUMN','COLORMAP_BONE' ,
                             'COLORMAP_JET(PADRÃO)' ,
                             'COLORMAP_WINTER' ,
@@ -80,25 +76,25 @@ class win_sand(object):
         self.gradi['state'] = 'readonly'
         self.gradi.place(height=20, width=170, x=13*a, y=(c + 7*b))
 
-        self.var3 = tk.IntVar()
+        self.var3 = IntVar()
         self.list_numbers_curv= [1,3,5,8,10,15,20,30]
         self.numbers_curv = ttk.Combobox(self.janela, values = self.list_numbers_curv, textvariable= self.var3)
         self.numbers_curv.set('Fator de Distância')
         self.numbers_curv['state'] = 'readonly'
         self.numbers_curv.place(height=20, width=125, x=31*a - 8, y=(c + 7*b))
 
-        self.var4 = tk.IntVar()
+        self.var4 = IntVar()
         list_thickness_curv = [1,2,3,4,5,6,7,8]
         self.thickness_curv = ttk.Combobox(self.janela, values =list_thickness_curv, textvariable= self.var4)
         self.thickness_curv.set('Espessura da Linha')
         self.thickness_curv['state'] = 'readonly'
         self.thickness_curv.place(height=20, width=125, x=42*a + 9 , y=(c + 7*b))
 
-        self.set_heigth = tk.IntVar()
+        self.set_heigth = IntVar()
         self.set_entry = Entry(self.janela,textvariable = self.set_heigth)
         self.set_entry.place(height=20, width=50, x=15*a, y=(c + 3*b))
 
-        self.var_a = tk.IntVar()
+        self.var_a = IntVar()
         self.check_a = Checkbutton(self.janela, text='Exibir Altura', variable= self.var_a)
         self.check_a.place(height=20, width=90, x=a, y=(c + 4*b))
 
@@ -107,35 +103,35 @@ class win_sand(object):
         b = 30
         c = 10
         d = 25
-        self.v1 = tk.IntVar()
+        self.v1 = IntVar()
         self.s1 = ttk.Scale(self.janela, variable = self.v1, 
                 from_ = 1, to = self.w, 
                 orient = "horizontal") 
         self.s1.set(self.w/2)
         self.s1.place(height=20, width=400, x=a, y=(c + 11*b))
 
-        self.v2 = tk.IntVar()
+        self.v2 = IntVar()
         self.s2 = ttk.Scale(self.janela, variable = self.v2, 
                 from_ = 1, to = self.h, 
                 orient = "horizontal") 
         self.s2.set(self.h/2)
         self.s2.place(height=20, width=400, x=a, y=(c + 12*b))
 
-        self.v4 = tk.IntVar()
+        self.v4 = IntVar()
         self.s4 = ttk.Scale(self.janela, variable = self.v4, 
                 from_ = 0, to = self.w, 
                 orient = "horizontal") 
         self.s4.set(self.w/2)
         self.s4.place(height=20, width=400, x=a, y=(c + 13*b))
 
-        self.v5 = tk.IntVar()
+        self.v5 = IntVar()
         self.s5 = ttk.Scale(self.janela, variable = self.v5, 
                 from_ = 0, to = self.h, 
                 orient = "horizontal") 
         self.s5.set(self.h/2)
         self.s5.place(height=20, width=400, x=a, y=(c + 14*b))
 
-        self.v3 = tk.IntVar()
+        self.v3 = IntVar()
         self.s3 = ttk.Scale(self.janela, variable = self.v3, 
                 from_ = -180, to = 180, 
                 orient = "horizontal") 
@@ -159,19 +155,19 @@ class win_sand(object):
         self.botao_exibTR = Button(self.janela, text="Exibir", command= lambda:[self.fal(), threading.Thread(target=self.exib_TR, args= (self.list_var[0],self.list_var[1],
                         self.list_var[2],self.list_var[3],self.list_var[4], self.h, self.w, self.found_box, self.alt_max)).start()])                             
         self.botao_exibTR.place(height=25, width=100, x=a, y=(c + 8*b))
-        self.botao_exibTR["state"] = tk.DISABLED
+        self.botao_exibTR["state"] = DISABLED
 
         self.botao_aplic = Button(self.janela, text="Aplicar", command= lambda: self.maplic())                                 
         self.botao_aplic.place(height=25, width=100, x=11*a, y=(c + 8*b))
-        self.botao_aplic["state"] = tk.DISABLED
+        self.botao_aplic["state"] = DISABLED
 
         self.botao_curv = Button(self.janela, text="Exibir Curvas", command= lambda: self.exibe_curvas_de_nivel())
         self.botao_curv.place(height=25, width=100,x=a, y=(c + 18*b))
-        self.botao_curv["state"] = tk.DISABLED
+        self.botao_curv["state"] = DISABLED
 
         self.botao_surface = Button(self.janela, text="Exibir Superfície", command= lambda: self.exibe_3d())
         self.botao_surface.place(height=25, width=100, x=11*a, y=(c + 18*b))
-        self.botao_surface["state"] = tk.DISABLED
+        self.botao_surface["state"] = DISABLED
 
         botao_exit = Button(self.janela, text="Sair", command= lambda: print(self.quit_sand()))
         botao_exit.place(height=25, width=75, x=48*a, y=(10 + 20*b))
@@ -259,7 +255,7 @@ class win_sand(object):
             frame = depth_stream.read_frame()
             frame_data = frame.get_buffer_as_uint16()
         except:
-            tk.messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect")
         else:
             img = np.frombuffer(frame_data, dtype=np.uint16)
             n_curvas_de_nivel=30
@@ -296,7 +292,7 @@ class win_sand(object):
             frame = depth_stream.read_frame()
             frame_data = frame.get_buffer_as_uint16()
         except:
-            tk.messagebox.showerror("Erro","Conecte o kinect")  
+            messagebox.showerror("Erro","Conecte o kinect")
         else:
             img = np.frombuffer(frame_data, dtype=np.uint16)
             
@@ -340,12 +336,12 @@ class win_sand(object):
             depth_stream = dev.create_depth_stream()
             depth_stream.start()
         except:
-            tk.messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect")
         else:
 
-            self.botao_exibTR["state"] = tk.DISABLED
-            self.botao_calibration1["state"] = tk.DISABLED
-            self.botao_calibration2["state"] = tk.DISABLED
+            self.botao_exibTR["state"] = DISABLED
+            self.botao_calibration1["state"] = DISABLED
+            self.botao_calibration2["state"] = DISABLED
 
             def onMouse2(event, x, y, flags, param):
                 if event == cv2.EVENT_MOUSEMOVE:
@@ -419,9 +415,9 @@ class win_sand(object):
                     self.texto_view_alt["text"] = "" 
                 if (cv2.getWindowProperty("Tempo Real", cv2.WND_PROP_VISIBLE) <1) or (self.list_var[5] == True):  
                     self.texto_view_alt["text"] = "" 
-                    self.botao_exibTR["state"] = tk.NORMAL
-                    self.botao_calibration1["state"] = tk.NORMAL
-                    self.botao_calibration2["state"] = tk.NORMAL
+                    self.botao_exibTR["state"] = NORMAL
+                    self.botao_calibration1["state"] = NORMAL
+                    self.botao_calibration2["state"] = NORMAL
                     self.list_var[5] = False   
                     break      
             cv2.destroyAllWindows()    
@@ -431,9 +427,9 @@ class win_sand(object):
             depth_stream= dev.create_depth_stream()
             depth_stream.start()
         except:
-            tk.messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect")
         else:
-            tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
+            messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
             if len(self.points_area) !=  0:
                 self.points_area = []
             def onMouse1(event, x, y, flags, param):    
@@ -453,18 +449,18 @@ class win_sand(object):
                 img = np.swapaxes(img, 0, 1)
                 img = cv2.convertScaleAbs((img), alpha=0.1) 
                 img = cv2.medianBlur(img, 23)
-                img = equalizeHist(img)
+                img = cv2.equalizeHist(img)
                 img = cv2.bitwise_not(img)
                 img = cv2.rotate(img, cv2.ROTATE_180) 
                 cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
                 if len(self.points_area) == 4:   
                     if (self.points_area[0] >= self.points_area[2]) or (self.points_area[1] >= self.points_area[3]):
-                        tk.messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
+                        messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
                         self.points_area = []
-                        self.botao_aplic["state"] = tk.DISABLED
-                        self.botao_exibTR["state"] = tk.DISABLED
-                        self.botao_curv["state"] = tk.DISABLED
-                        self.botao_surface["state"] = tk.DISABLED
+                        self.botao_aplic["state"] = DISABLED
+                        self.botao_exibTR["state"] = DISABLED
+                        self.botao_curv["state"] = DISABLED
+                        self.botao_surface["state"] = DISABLED
                         break
                     else:
                         cframe_data = cframe_data[self.points_area[1]:self.points_area[3], self.points_area[0]: self.points_area[2]]  
@@ -472,31 +468,35 @@ class win_sand(object):
                 cv2.waitKey(34)
                 if (cv2.getWindowProperty("Selecionar", cv2.WND_PROP_VISIBLE) <1):
                     if (len(self.points_area) != 4):
-                        tk.messagebox.showinfo("Info", "Calibre a área da caixa")
+                        messagebox.showinfo("Info", "Calibre a área da caixa")
                         self.points_area = []
-                        self.botao_aplic["state"] = tk.DISABLED
-                        self.botao_exibTR["state"] = tk.DISABLED
-                        self.botao_curv["state"] = tk.DISABLED
-                        self.botao_surface["state"] = tk.DISABLED
+                        self.botao_aplic["state"] = DISABLED
+                        self.botao_exibTR["state"] = DISABLED
+                        self.botao_curv["state"] = DISABLED
+                        self.botao_surface["state"] = DISABLED
                         break  
                     elif (self.found_box  != 0):
-                        self.botao_aplic["state"] = tk.NORMAL
-                        self.botao_exibTR["state"] = tk.NORMAL
-                        self.botao_curv["state"] = tk.NORMAL
-                        self.botao_surface["state"] = tk.NORMAL
+                        self.botao_aplic["state"] = NORMAL
+                        self.botao_exibTR["state"] = NORMAL
+                        self.botao_curv["state"] = NORMAL
+                        self.botao_surface["state"] = NORMAL
                         break
                     else:
-                        self.botao_aplic["state"] = tk.DISABLED
-                        self.botao_exibTR["state"] = tk.DISABLED
-                        self.botao_curv["state"] = tk.DISABLED
-                        self.botao_surface["state"] = tk.DISABLED
+                        self.botao_aplic["state"] = DISABLED
+                        self.botao_exibTR["state"] = DISABLED
+                        self.botao_curv["state"] = DISABLED
+                        self.botao_surface["state"] = DISABLED
                         break
                 if (self.closed_cal == True):
                     self.points_area = []
-                    self.botao_aplic["state"] = tk.DISABLED
-                    self.botao_exibTR["state"] = tk.DISABLED
-                    self.botao_curv["state"] = tk.DISABLED
-                    self.botao_surface["state"] = tk.DISABLED
+                    self.botao_aplic["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_curv["state"] = DISABLED
+                    self.botao_surface["state"] = DISABLED
                     break  
             cv2.destroyAllWindows()
 
@@ -506,7 +506,7 @@ class win_sand(object):
             depth_stream= dev.create_depth_stream()
             depth_stream.start()
         except:
-            tk.messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect")
         else:
         
             if len(self.key_set) != 0:
@@ -535,7 +535,7 @@ class win_sand(object):
                 img = np.swapaxes(img, 0, 1)  
                 img = cv2.convertScaleAbs((img), alpha=0.1) 
                 img = cv2.medianBlur(img, 23)  
-                img = equalizeHist(img)   
+                img = cv2.equalizeHist(img)
                 img = cv2.bitwise_not(img)
                 img = cv2.rotate(img, cv2.ROTATE_180)     
                 im_color = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
@@ -545,26 +545,26 @@ class win_sand(object):
                 cv2.waitKey(34)
 
                 if (cv2.getWindowProperty("Alt", cv2.WND_PROP_VISIBLE) <1):  
-                    tk.messagebox.showinfo("Info", "Selecione distância")
-                    self.botao_aplic["state"] = tk.DISABLED
-                    self.botao_exibTR["state"] = tk.DISABLED
-                    self.botao_curv["state"] = tk.DISABLED
-                    self.botao_surface["state"] = tk.DISABLED
+                    messagebox.showinfo("Info", "Selecione distância")
+                    self.botao_aplic["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_curv["state"] = DISABLED
+                    self.botao_surface["state"] = DISABLED
                     break 
                 if  (len(self.key_set)  != 0):
                     if (len(self.points_area) == 4):
-                        self.botao_aplic["state"] = tk.NORMAL
-                        self.botao_exibTR["state"] = tk.NORMAL
-                        self.botao_curv["state"] = tk.NORMAL
-                        self.botao_surface["state"] = tk.NORMAL
+                        self.botao_aplic["state"] = NORMAL
+                        self.botao_exibTR["state"] = NORMAL
+                        self.botao_curv["state"] = NORMAL
+                        self.botao_surface["state"] = NORMAL
                         break
                     else:
                         break
                 if (self.closed_cal == True):
-                    self.botao_aplic["state"] = tk.DISABLED
-                    self.botao_exibTR["state"] = tk.DISABLED
-                    self.botao_curv["state"] = tk.DISABLED
-                    self.botao_surface["state"] = tk.DISABLED
+                    self.botao_aplic["state"] = DISABLED
+                    self.botao_exibTR["state"] = DISABLED
+                    self.botao_curv["state"] = DISABLED
+                    self.botao_surface["state"] = DISABLED
                     break     
             cv2.destroyAllWindows() 
 
@@ -575,16 +575,16 @@ class win_sand(object):
         d = 25
         if ((self.thickness_curv.current() != -1) and (self.numbers_curv.current() != -1) and (self.gradi.current() != -1)):
             self.list_var = [self.gradi.current(),self.var1.get(),self.var2.get(),self.var3.get(),self.var4.get(), True]
-            self.botao_exibTR["state"] = tk.NORMAL
+            self.botao_exibTR["state"] = NORMAL
             self.texto_change.place(height=25, width=300, x=22*a, y=(c + 8*b))
         else:
-            tk.messagebox.showerror("Erro", "Defina todos os paramêtros")
+            messagebox.showerror("Erro", "Defina todos os paramêtros")
 
     def fal(self):
         self.texto_change.place_forget()
         self.list_var[5] = False
         if self.list_var == [2, 1, 1, 5, 1, False]:
-            tk.messagebox.showinfo("Info", "Parâmetros padrão executados") 
+            messagebox.showinfo("Info", "Parâmetros padrão executados")
 
     def set_alt(self):  
         try:
@@ -592,16 +592,14 @@ class win_sand(object):
             if type(self.alt_max) == int:
                 self.alt_max = (self.set_heigth.get())
         except:
-            tk.messagebox.showerror("Erro","Digite a distância no formato inteiro, em milímetros")   
+            messagebox.showerror("Erro","Digite a distância no formato inteiro, em milímetros")
 
     def quit_sand(self):
         self.list_var[5] = True
         self.closed_cal = True
 
-        if tk.messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
+        if messagebox.askokcancel("Sair", "Deseja fechar SandBox?"):
             self.janela.destroy()
         else:
             self.list_var[5] = False
-            self.closed_cal = False     
-
-     
+            self.closed_cal = False
