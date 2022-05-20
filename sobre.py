@@ -1,9 +1,9 @@
 #                           PLATAFORMA SANDBOX 3/3 2022
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
-from tkinter import*
+from tkinter import Toplevel, INSERT, scrolledtext
 import sys
-from tkinter.scrolledtext import ScrolledText
+
 
 class sob(object):
     def __init__(self, **kw):                    
@@ -16,32 +16,13 @@ class sob(object):
        
         
     def create_text(self):
-        atex = ScrolledText(self.sob,width = 90, 
+        atex = scrolledtext.ScrolledText(self.sob,width = 90,
                             height = 20, 
                             font = ("Times New Roman",
                                     15,))
         atex.grid(column = 0, pady = 10, padx = 10)
         atex.insert(INSERT,
                                     """\
-            This is a scrolledtext widget to make tkinter text read only.
-                                    Hi
-                                    Geeks !!!
-                                    Geeks !!!
-                                    Geeks !!! 
-                                    Geeks !!!
-
-
-
-
-
-
-
-
-
-
-                escreva o texto                    
-                                    Geeks !!!
-                                    Geeks !!!
-                                    Geeks !!!
+O aplicativo desktop SandBox é uma ferramenta utilizada na criação de práticas e atividades interativas para alunos de Ensino Fundamental e Médio da disciplina de Geografia na criação de relevos e na visualização do mapa de relevo correspondente em tempo real, além de possibilitar interações diversas com as imagens criadas.
                                     """)
         atex.configure(state ='disabled') 
