@@ -31,7 +31,7 @@ class win_sand(object):
         self.create_text() 
         self.create_scales()
         self.create_variables()
-        self.image()
+        # self.image()
         
         openni2.initialize()
         self.janela.protocol("WM_DELETE_WINDOW", self.quit_sand)
@@ -235,14 +235,14 @@ class win_sand(object):
         self.texto_view_alt = ttk.Label(self.janela, text="")
         self.texto_view_alt.place(height=20, width=280, x=10*a, y=(c + 4*b))
       
-    def image(self):
-        a = 10
-        b = 30
-        self.imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
-        self.imagem = self.imagem.subsample(8, 8) 
-        im = Label(self.janela, image=self.imagem)
-        im.place(height=25, width=110, x=a, y=(10 + 20*b))  
-        #im.configure(bg = "white")
+    # def image(self):
+    #     a = 10
+    #     b = 30
+    #     self.imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
+    #     self.imagem = self.imagem.subsample(8, 8)
+    #     im = Label(self.janela, image=self.imagem)
+    #     im.place(height=25, width=110, x=a, y=(10 + 20*b))
+    #    #im.configure(bg = "white")
     
     def exibe_curvas_de_nivel(self):
         """
