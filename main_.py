@@ -29,9 +29,11 @@ class win_sand(object):
     list_var = [2, 1, 1, 5, 1, False]
     points_area = []
     closed_cal = False 
-    def __init__(self, **kw):                        
+    def __init__(self, **kw):
+        path = resource_path("nero_icon.ico")
         self.janela = Toplevel()
-        self.janela.title("SANDBOX")
+        self.janela.title("SandBox")
+        self.janela.iconbitmap(path)
         self.h = self.janela.winfo_screenheight()
         self.w = self.janela.winfo_screenwidth()
         self.janela.geometry("%dx%d+%d+%d" % (570, 650, ((self.w/2) - (570/2)),((self.h/2) - (680/2))))
