@@ -255,7 +255,7 @@ class win_sand(object):
         self.imagem = self.imagem.subsample(8, 8)
         im = Label(self.janela, image=self.imagem)
         im.place(height=25, width=110, x=a, y=(10 + 20*b))
-        im.configure(bg = "white")
+        # im.configure(bg = "white")
     
     def exibe_curvas_de_nivel(self):
         """
