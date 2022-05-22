@@ -19,9 +19,11 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 class myApp(object):
-    def __init__(self, **kw):                    
+    def __init__(self, **kw):
+        path = resource_path("nero_icon.ico")
         self.root = Tk()
-        self.root.title("SANDBOX")
+        self.root.iconbitmap(path)
+        self.root.title("SandBox")
         self.root.geometry('300x500')
         self.root.configure(bg='white')
         self.root.resizable(width=0, height=0)
