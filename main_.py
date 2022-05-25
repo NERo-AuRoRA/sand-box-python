@@ -2,24 +2,12 @@
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
 import sys
-import os
 import cv2
 import numpy as np
 import threading
 from tkinter import IntVar, Toplevel, Checkbutton, Entry, Button, StringVar, PhotoImage, Label, ttk, messagebox, DISABLED, NORMAL
 from openni import openni2
 from matplotlib import pyplot as plt, cm
-
-
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 class win_sand(object):
     alt_max = 0
@@ -29,11 +17,9 @@ class win_sand(object):
     list_var = [2, 1, 1, 5, 1, False]
     points_area = []
     closed_cal = False 
-    def __init__(self, **kw):
-        path = resource_path("nero_icon.ico")
+    def __init__(self, **kw):                        
         self.janela = Toplevel()
-        self.janela.title("SandBox")
-        self.janela.iconbitmap(path)
+        self.janela.title("SANDBOX")
         self.h = self.janela.winfo_screenheight()
         self.w = self.janela.winfo_screenwidth()
         self.janela.geometry("%dx%d+%d+%d" % (570, 650, ((self.w/2) - (570/2)),((self.h/2) - (680/2))))
@@ -155,10 +141,10 @@ class win_sand(object):
         b = 30
         c = 10
         d = 25
-        self.botao_calibration1 = Button(self.janela, text="Calibrar", command= lambda: threading.Thread(target=self.cal_inicial).start())                                 
+        self.botao_calibration1 = Button(self.janela, text="Calibrar", command= lambda:[self.bloq_1(),self.bloq_2(), threading.Thread(target=self.cal_inicial).start()])                                 
         self.botao_calibration1.place(height=25, width=100, x=a, y=(15 + 0*b))
 
-        self.botao_calibration2 = Button(self.janela, text="Calibrar", command= lambda: threading.Thread(target=self.set_f).start())
+        self.botao_calibration2 = Button(self.janela, text="Calibrar", command= lambda:[self.bloq_2(),self.bloq_1(),threading.Thread(target=self.set_f).start()])
         self.botao_calibration2.place(height=25, width=100,x=a, y=(15 + 1*b))
 
         botao_set_top = Button(self.janela, text="Set", command= lambda: self.set_alt())
@@ -250,12 +236,10 @@ class win_sand(object):
     def image(self):
         a = 10
         b = 30
-        path = resource_path("Nero_Preto_SemFundo.png")
-        self.imagem = PhotoImage(file=path)
+        self.imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
         self.imagem = self.imagem.subsample(8, 8)
         im = Label(self.janela, image=self.imagem)
         im.place(height=25, width=110, x=a, y=(10 + 20*b))
-        # im.configure(bg = "white")
     
     def exibe_curvas_de_nivel(self):
         """
@@ -443,8 +427,11 @@ class win_sand(object):
             depth_stream.start()
         except:
             messagebox.showerror("Erro","Conecte o kinect")
+            self.botao_calibration1['state'] = NORMAL
+            self.botao_calibration2['state'] = NORMAL
+            
         else:
-            messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito da caixa.")
+            messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois clique sobre o vértice inferior direito da caixa.")
             if len(self.points_area) !=  0:
                 self.points_area = []
             def onMouse1(event, x, y, flags, param):    
@@ -470,18 +457,34 @@ class win_sand(object):
                 cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
                 if len(self.points_area) == 4:   
                     if (self.points_area[0] >= self.points_area[2]) or (self.points_area[1] >= self.points_area[3]):
-                        messagebox.showinfo("Info", "Clique sobre o vértice superior esquerdo da caixa, depois sobre o vértice inferior direito. Calibre novamente")
+                        threading.Thread(target = messagebox.showinfo, args = ("Info", "Clique sobre o vértice superior esquerdo da caixa, depois clique sobre o vértice inferior direito. Calibre novamente")).start()
                         self.points_area = []
                         self.botao_aplic["state"] = DISABLED
                         self.botao_exibTR["state"] = DISABLED
                         self.botao_curv["state"] = DISABLED
                         self.botao_surface["state"] = DISABLED
+                        self.botao_calibration2['state'] = NORMAL
+                        self.botao_calibration1['state'] = NORMAL
                         break
+                    elif (self.found_box  != 0):
+                        self.botao_calibration2['state'] = NORMAL
+                        self.botao_calibration1['state'] = NORMAL
+                        threading.Thread(target = messagebox.showinfo, args = ("Info", "A área foi selecionada com sucesso!")).start()
+                        self.botao_aplic["state"] = NORMAL
+                        self.botao_exibTR["state"] = NORMAL
+                        self.botao_curv["state"] = NORMAL
+                        self.botao_surface["state"] = NORMAL
+                        break 
                     else:
-                        cframe_data = cframe_data[self.points_area[1]:self.points_area[3], self.points_area[0]: self.points_area[2]]  
+                        self.botao_calibration2['state'] = NORMAL
+                        self.botao_calibration1['state'] = NORMAL
+                        threading.Thread(target = messagebox.showinfo, args = ("Info", "A área foi selecionada com sucesso!")).start()
+                        break 
                 cv2.imshow("Selecionar", cframe_data)
                 cv2.waitKey(34)
                 if (cv2.getWindowProperty("Selecionar", cv2.WND_PROP_VISIBLE) <1):
+                    self.botao_calibration2['state'] = NORMAL
+                    self.botao_calibration1['state'] = NORMAL
                     if (len(self.points_area) != 4):
                         messagebox.showinfo("Info", "Calibre a área da caixa")
                         self.points_area = []
@@ -522,8 +525,10 @@ class win_sand(object):
             depth_stream.start()
         except:
             messagebox.showerror("Erro","Conecte o kinect")
+            self.botao_calibration1['state'] = NORMAL
+            self.botao_calibration2['state'] = NORMAL
+
         else:
-        
             if len(self.key_set) != 0:
                 self.key_set = []                          
 
@@ -565,21 +570,31 @@ class win_sand(object):
                     self.botao_exibTR["state"] = DISABLED
                     self.botao_curv["state"] = DISABLED
                     self.botao_surface["state"] = DISABLED
+                    self.botao_calibration1['state'] = NORMAL
+                    self.botao_calibration2['state'] = NORMAL
                     break 
                 if  (len(self.key_set)  != 0):
+                    threading.Thread(target = messagebox.showinfo, args = ("Info", "A Distância foi selecionada com sucesso!")).start()
                     if (len(self.points_area) == 4):
                         self.botao_aplic["state"] = NORMAL
                         self.botao_exibTR["state"] = NORMAL
                         self.botao_curv["state"] = NORMAL
                         self.botao_surface["state"] = NORMAL
+                        self.botao_calibration1['state'] = NORMAL
+                        self.botao_calibration2['state'] = NORMAL
                         break
                     else:
+                        self.botao_calibration1['state'] = NORMAL
+                        self.botao_calibration2['state'] = NORMAL
                         break
                 if (self.closed_cal == True):
                     self.botao_aplic["state"] = DISABLED
                     self.botao_exibTR["state"] = DISABLED
                     self.botao_curv["state"] = DISABLED
                     self.botao_surface["state"] = DISABLED
+                    self.botao_calibration1['state'] = NORMAL
+                    self.botao_calibration1['state'] = NORMAL
+                    self.botao_calibration2['state'] = NORMAL
                     break     
             cv2.destroyAllWindows() 
 
@@ -618,3 +633,7 @@ class win_sand(object):
         else:
             self.list_var[5] = False
             self.closed_cal = False
+    def bloq_2(self):
+        self.botao_calibration2['state'] = DISABLED
+    def bloq_1(self):
+        self.botao_calibration1['state'] = DISABLED
