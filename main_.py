@@ -252,7 +252,7 @@ class win_sand(object):
             frame = depth_stream.read_frame()
             frame_data = frame.get_buffer_as_uint16()
         except:
-            messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect.")
         else:
             img = np.frombuffer(frame_data, dtype=np.uint16)
             n_curvas_de_nivel=30
@@ -290,7 +290,7 @@ class win_sand(object):
             frame = depth_stream.read_frame()
             frame_data = frame.get_buffer_as_uint16()
         except:
-            messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect.")
         else:
             img = np.frombuffer(frame_data, dtype=np.uint16)
             
@@ -335,7 +335,7 @@ class win_sand(object):
             depth_stream = dev.create_depth_stream()
             depth_stream.start()
         except:
-            messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect.")
         else:
 
             self.botao_exibTR["state"] = DISABLED
@@ -374,7 +374,7 @@ class win_sand(object):
                 alpha = 255 / ((np.amax(img) - np.amin(img)))
                 beta = -np.amin(img) * alpha
                 img = cv2.convertScaleAbs((img), alpha=alpha, beta = beta) 
-                img = cv2.medianBlur(img, 19)   
+                img = cv2.medianBlur(img, 23)   
                 img = cv2.rotate(img, cv2.ROTATE_180)       
                 im_color = cv2.applyColorMap(img, mapoption) 
                 im_position = im_color 
@@ -426,7 +426,7 @@ class win_sand(object):
             depth_stream= dev.create_depth_stream()
             depth_stream.start()
         except:
-            messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect.")
             self.botao_calibration1['state'] = NORMAL
             self.botao_calibration2['state'] = NORMAL
             
@@ -457,7 +457,7 @@ class win_sand(object):
                 cframe_data = cv2.applyColorMap(img, cv2.COLORMAP_JET) 
                 if len(self.points_area) == 4:   
                     if (self.points_area[0] >= self.points_area[2]) or (self.points_area[1] >= self.points_area[3]):
-                        threading.Thread(target = messagebox.showinfo, args = ("Info", "Clique sobre o vértice superior esquerdo da caixa, depois clique sobre o vértice inferior direito. Calibre novamente")).start()
+                        threading.Thread(target = messagebox.showinfo, args = ("Info", "Clique sobre o vértice superior esquerdo da caixa, depois clique sobre o vértice inferior direito. Calibre novamente.")).start()
                         self.points_area = []
                         self.botao_aplic["state"] = DISABLED
                         self.botao_exibTR["state"] = DISABLED
@@ -524,7 +524,7 @@ class win_sand(object):
             depth_stream= dev.create_depth_stream()
             depth_stream.start()
         except:
-            messagebox.showerror("Erro","Conecte o kinect")
+            messagebox.showerror("Erro","Conecte o kinect.")
             self.botao_calibration1['state'] = NORMAL
             self.botao_calibration2['state'] = NORMAL
 
@@ -574,7 +574,7 @@ class win_sand(object):
                     self.botao_calibration2['state'] = NORMAL
                     break 
                 if  (len(self.key_set)  != 0):
-                    threading.Thread(target = messagebox.showinfo, args = ("Info", "A Distância foi selecionada com sucesso!")).start()
+                    threading.Thread(target = messagebox.showinfo, args = ("Info", "A distância foi selecionada com sucesso!")).start()
                     if (len(self.points_area) == 4):
                         self.botao_aplic["state"] = NORMAL
                         self.botao_exibTR["state"] = NORMAL
