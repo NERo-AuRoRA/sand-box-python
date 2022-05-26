@@ -2,12 +2,23 @@
 #
 # Conjunto de abas que permite ao usuario ter acesso às  informações do sistema através da interface gráfica. 
 import sys
+import os
 import cv2
 import numpy as np
 import threading
 from tkinter import IntVar, Toplevel, Checkbutton, Entry, Button, StringVar, PhotoImage, Label, ttk, messagebox, DISABLED, NORMAL
 from openni import openni2
 from matplotlib import pyplot as plt, cm
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class win_sand(object):
     alt_max = 0
@@ -17,9 +28,11 @@ class win_sand(object):
     list_var = [2, 1, 1, 5, 1, False]
     points_area = []
     closed_cal = False 
-    def __init__(self, **kw):                        
+    def __init__(self, **kw):
+        path = resource_path("nero_icon.ico")
         self.janela = Toplevel()
-        self.janela.title("SANDBOX")
+        self.janela.iconbitmap(path)
+        self.janela.title("SandBox")
         self.h = self.janela.winfo_screenheight()
         self.w = self.janela.winfo_screenwidth()
         self.janela.geometry("%dx%d+%d+%d" % (570, 650, ((self.w/2) - (570/2)),((self.h/2) - (680/2))))
@@ -236,7 +249,8 @@ class win_sand(object):
     def image(self):
         a = 10
         b = 30
-        self.imagem = PhotoImage(file="Nero_Preto_SemFundo.PNG")
+        path = resource_path("Nero_Preto_SemFundo.png")
+        self.imagem = PhotoImage(file=path)
         self.imagem = self.imagem.subsample(8, 8)
         im = Label(self.janela, image=self.imagem)
         im.place(height=25, width=110, x=a, y=(10 + 20*b))
